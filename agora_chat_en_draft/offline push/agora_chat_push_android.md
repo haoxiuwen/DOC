@@ -12,19 +12,17 @@
 
 消息推送流程如下：
 
-1. 用户 B（消息接收者）检查设备是否支持 FCM 推送，即 app 是否配置了 FCM 推送服务且满足该推送的使用条件。
+1. 用户 B 初始化 FCM 推送 SDK，检查是否支持 FCM 推送。
 2. 用户 B 根据配置的 FCM 推送 SDK 从 FCM 推送服务器获取 device token。
 3. FCM 推送服务器向用户 B 返回 device token。
 4. 用户 B 向声网即时通讯服务器上传推送证书名称和 device token。
 5. 用户 A 向 用户 B 发送消息。
 6. 声网即时通讯服务器检查用户 B 是否在线。若在线，声网即时通讯服务器直接将消息发送给用户 B。
-7. 若用户 B 离线，声网即时通讯服务器判断该用户的设备使用的推送服务类型。
+7. 若用户 B 离线，声网即时通讯服务器判断该用户是否使用了 FCM 推送。
 8. 声网即时通讯服务器将消息发送给 FCM 推送服务器。
 9. FCM 推送服务器将消息发送给用户 B。
 
-查找第三方，替换 FCM？
-
-<div class="alert info">device token 是第三方推送厂商提供的推送 token，该 token 用于标识每台设备上每个应用。各推送厂商通过该 token 明确要发送的消息是发送给哪个设备的，然后将消息转发给设备，设备再通知应用程序。对于 FCM 推送，该 device token 指初次启动你的应用时，FCM SDK 为客户端应用实例生成的注册令牌 (registration token)，你可以调用 FirebaseMessaging.getInstance().getToken() 方法获得 token。另外，如果退出即时通讯 IM 登录时不解绑 device token（调用 `logout` 方法时对 `unbindToken` 参数传 `false` 时不解绑 device token，传 `true` 表示解绑 token），用户在推送证书有效期和 token 有效期内仍会接收到离线推送通知。</div>
+<div class="alert info">device token 是 FCM 推送提供的推送 token，即初次启动你的应用时，FCM SDK 为客户端应用实例生成的注册令牌 (registration token)。该 token 用于标识每台设备上的每个应用，FCM 通过该 token 明确消息是发送给哪个设备的，然后将消息转发给设备，设备再通知应用程序。你可以调用 FirebaseMessaging.getInstance().getToken() 方法获得 token。另外，如果退出即时通讯 IM 登录时不解绑 device token（调用 `logout` 方法时对 `unbindToken` 参数传 `false` 时不解绑 device token，传 `true` 表示解绑 token），用户在推送证书有效期和 token 有效期内仍会接收到离线推送通知。</div>
 
 ## 前提条件
 
@@ -86,14 +84,13 @@
 | **Private Key**     | file | 是       | 点击 **Upload** 上传推送证书文件（.json）。你需要在 Firebase 控制台的 **Project settings** > **Service accounts** 页面点击 **Generate new private key** 生成的推送证书文件（.json）。 |
 | **Push Key** | String | 是       | FCM 的服务器密钥（Server Key）。 你需在 Firebase 控制台的 **Project settings** > **Cloud Messaging** 页面，在 **Cloud Messaging API (Legacy)** 区域中获取服务器密钥。|
 | **Certificate Name** | String | 是       | 配置为 FCM 的发送者 ID。你可以在 FCM 控制台的 **Project settings** > **Cloud Messaging** 页面查看 **Sender ID** 参数的值。<br/> - 证书名称是声网即时通讯服务器用于判断目标设备使用哪种推送通道的唯一条件，因此必须确保你[在即时通讯 IM 中集成 FCM 时设置的 Sender ID](#initialization)与这里设置的一致。|
-| **Sound** | String | 否       | 接收方收到推送通知时的铃声提醒。  |  是否生效？
+| **Sound** | String | 否       | 接收方收到推送通知时的铃声提醒。  |  是否生效？待验证
 | **Push Priority** |  | 否       | 消息传递优先级，详见 [FCM 官网](https://firebase.google.cn/docs/cloud-messaging/concept-options#setting-the-priority-of-a-message)。 |
 | **Push Msg Type** |  | 否       | 通过 FCM 向客户端发送的消息的类型，详见 [FCM 消息简介](https://firebase.google.cn/docs/cloud-messaging/concept-options#notifications_and_data_messages) 。<br/> - **Data**：数据消息，由客户端应用处理。<br/> - **Notification**：通知消息，由 FCM SDK 自动处理。<br/> - **Both**：可以通过 FCM 客户端发送通知消息和数据消息。|
 
-
 ### 在客户端集成 FCM
 
-1. 在你的app项目的 build.gradle 文件中，配置 FCM 库的依赖：
+1. 在你的 app 项目的 build.gradle 文件中，配置 FCM 库的依赖：
 
 ```gradle
 plugins {
@@ -206,7 +203,7 @@ FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteL
         }
         // 获取 FCM 的注册 token，即 device token。
         String token = task.getResult();
-        EMLog.d("FCM", token);  前面是否需要添加初始化和登陆成功的代码？
+        EMLog.d("FCM", token);  
         ChatClient.getInstance().sendFCMTokenToServer(token);
     }
 });
@@ -427,7 +424,9 @@ PushManager.DisplayStyle displayStyle = PushManager.DisplayStyle.SimpleBanner;
 ChatClient.getInstance().pushManager().updatePushDisplayStyle(displayStyle);
 ```
 
-添加两个截图？
+添加四个截图？单聊和群聊界面分别添加
+a. 设置了推送昵称，`DisplayStyle` 设置为简单样式 `SimpleBanner`。
+b. 设置了推送昵称，`DisplayStyle` 设置为显示消息内容 `MessageSummary`。
 
 ### 获取推送通知的显示属性
 
@@ -482,13 +481,14 @@ JSONArray titleArgs = new JSONArray();
 JSONArray contentArgs = new JSONArray();
 try {
         // 设置推送模板名称。
-        pushObject.put("name", "test7");
+        pushObject.put("name", "test6");
         // 设置模板中推送标题的 value 数组。如果模板中指定的推送标题为占位数据，则在这里可自定义标题；若指定的标题为固定值，则使用该模板时标题为固定值。
-        titleArgs.put("value1");
+        titleArgs.put("test1");
         //...
         pushObject.put("title_args", titleArgs);
         // 设置模板中的推送内容的 value 数组。如果模板中指定的模板内容为占位数据，则在这里可自定义内容；若指定的内容为固定值，则使用该模板时内容为固定值。
-        contentArgs.put("value1");
+        contentArgs.put("$fromNickname");
+        contentArgs.put("$msg");
         //...
         pushObject.put("content_args", contentArgs);
 } catch (JSONException e) {
@@ -505,7 +505,16 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 推送模板的 JSON 结构如下：
 
 ```java
-
+"em_push_template":{
+        "name":"test6",
+        "title_args":[
+            "test1"
+        ],
+        "content_args":[
+            "{$fromNickname}",
+            "{$msg}"
+        ]
+}
 ```
 
 ## 解析 FCM 推送字段 
@@ -560,10 +569,10 @@ ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
 TextMessageBody txtBody = new TextMessageBody("message content");
 // 设置消息接收方：单聊为对端用户的用户 ID；群聊为群组 ID。
 message.setTo("receiver");
-// 设置自定义推送提示。
+// 设置自定义推送字段。
 JSONObject extObject = new JSONObject();
 try {
-    extObject.put("test1", "test 01");   "test1", "test 01"在下面的解析中没体现？
+    extObject.put("test1", "test 01"); 
 } catch (JSONException e) {
     e.printStackTrace();
 }
@@ -580,7 +589,7 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 | 参数             | 描述               |
 | :--------------- | :----------------- |
 | `txtBody`        | 推送消息内容。     |
-| `receiver` | 消息接收方的用户 ID。 |
+| `receiver`       | 消息接收方的用户 ID。 |
 | `em_apns_ext`    | 消息扩展字段。该字段名固定，不可修改。     |
 | `test1`          | 用户添加的自定义 key。  |
 
@@ -588,27 +597,16 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 
 ```java
 {
-不需要 payload? 和 ext？
-    "payload": {
-        "ext": {
-            "em_apns_ext": {
-                "em_push_title": "您有一条新消息",
-                //`DisplayStyle` 设置为简单样式 `SimpleBanner`，只显示 "您有⼀条新消息"。若要显示
-消息内容，需设置为 `MessageSummary`。？
-                "em_push_content": "您有一条新消息",
-                "em_push_collapse_key": "collapseKey"
-            },
-            "em_android_push_ext": {
-                "fcm_channel_id": "channel",
-                "fcm_options": {
-                    "key": "value"
-                }
-            }
-        }
+    "em_apns_ext": {
+        "test1": "test 01",
+        "em_push_collapse_key": "collapseKey"
     }
-
 }
 ```
+
+| 参数             | 描述               |
+| :--------------- | :----------------- |
+| `em_push_collapse_key`        | 指定一组可折叠的消息（例如，含有 collapse_key: “Updates Available”），以便当恢复传送时只发送最后一条消息。这是为了避免当设备恢复在线状态或变为活跃状态时重复发送过多相同的消息。   |
 
 ### 自定义推送显示
 
@@ -622,7 +620,7 @@ ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
 TextMessageBody txtBody = new TextMessageBody("message content");
 // 设置消息接收方：单聊为对端用户的用户 ID；群聊为群组 ID。
 message.setTo("receiver"); 
-// 设置自定义推送提示。
+// 设置自定义推送显示。
 JSONObject extObject = new JSONObject();
 try {
     extObject.put("em_push_title", "custom push title");
@@ -642,7 +640,6 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 
 | 参数              | 描述               |
 | :---------------- | :----------------- |
-| `receiver`  | 消息接收方的用户 ID。 |
 | `em_apns_ext`     | 消息扩展字段。该字段名固定，不可修改。     |
 | `em_push_title`   | 自定义推送消息标题。该字段名固定，不可修改。     |
 | `em_push_content` | 自定义推送消息内容。该字段名固定，不可修改。     |
@@ -651,21 +648,12 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 
 ```java
 {
-    "payload": {
-        "ext": {
-            "em_apns_ext": {
-                "em_push_title": "您有一条新消息",
-                "em_push_content": "您有一条新消息"
-            }
-        }
+    "em_apns_ext": {
+        "em_push_title": "custom push title",
+        "em_push_content": "custom push content"
     }
 }
 ```
-
-| 参数              | 描述               |
-| :---------------- | :----------------- |
-| `em_push_title` | 自定义推送消息标题。该字段名固定，不可修改。     |
-| `em_push_content` | 自定义推送消息内容。该字段名固定，不可修改。     |
 
 ### 强制推送<a name="forced"></a>
 
@@ -689,11 +677,11 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 | :---------------------- | :---------------------------------------------------------- |
 | `txtBody`               | 推送消息内容。                                              |
 | `receiver`        | 消息接收方：<ul><li>单聊为对端用户的用户 ID；</li><li>群聊为群组 ID。</li></ul>                                        |
-| `em_force_notification` | 是否为强制推送：<ul><li>`true`：强制推送；</li><li> （默认）`false`：非强制推送。<br/>该字段名固定，不可修改。 |
+| `em_force_notification` | 是否为强制推送：<ul><li>`true`：强制推送；</li><li>（默认）`false`：非强制推送。</li></ul><br/>该字段名固定，不可修改。 |
 
 ### 发送静默消息
 
-发送静默消息指发送方在发送消息时设置不推送消息，即用户离线时，即时通讯 IM 服务不会通过第三方厂商的消息推送服务向该用户的设备推送消息通知。因此，用户不会收到消息推送通知。当用户再次上线时，会收到离线期间的所有消息。
+发送静默消息指发送方在发送消息时设置不推送消息，即用户离线时，即时通讯 IM 服务不会通过 FCM 推送服务向该用户的设备推送消息通知。因此，用户不会收到消息推送通知。当用户再次上线时，会收到离线期间的所有消息。
 
 发送静默消息和免打扰模式下均为不推送消息，区别在于发送静默消息为发送方在发送消息时设置，而免打扰模式为接收方设置在指定时间段内不接收推送通知。
 
@@ -715,4 +703,4 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 | :---------------------- | :---------------------------------------------------------- |
 | `txtBody`               | 消息内容。                                              |
 | `receiver`        | 消息接收方：<ul><li>单聊为对端用户的用户 ID；</li><li>群聊为群组 ID。</li></ul>       |
-| `em_ignore_notification` | 是否发送静默消息：<ul><li>`true`：发送静默消息；</li><li>（默认）`false`：推送该消息。<br/>该字段名固定，不可修改。 |
+| `em_ignore_notification` | 是否发送静默消息：<ul><li>`true`：发送静默消息；</li><li>（默认）`false`：推送该消息。</li></ul><br/>该字段名固定，不可修改。 |
