@@ -74,7 +74,7 @@
 
 **上传 FCM 证书**
 
-在 **Push Certificate** 页面，单击 **Add Push Certificate**。 在弹出的对话框中，选择 **Google** 页签，配置字段，单击**保存**。
+在 **Push Certificate** 页面，单击 **Add Push Certificate**。在弹出的对话框中，选择 **Google** 页签，配置字段，单击**保存**。
 
 [img](FCM_add_push_certificate.png)
 
@@ -84,7 +84,7 @@
 | **Private Key**     | file | 是       | 点击 **Upload** 上传推送证书文件（.json）。你需要在 Firebase 控制台的 **Project settings** > **Service accounts** 页面点击 **Generate new private key** 生成的推送证书文件（.json）。 |
 | **Push Key** | String | 是       | FCM 的服务器密钥（Server Key）。 你需在 Firebase 控制台的 **Project settings** > **Cloud Messaging** 页面，在 **Cloud Messaging API (Legacy)** 区域中获取服务器密钥。|
 | **Certificate Name** | String | 是       | 配置为 FCM 的发送者 ID。你可以在 FCM 控制台的 **Project settings** > **Cloud Messaging** 页面查看 **Sender ID** 参数的值。<br/> - 证书名称是声网即时通讯服务器用于判断目标设备使用哪种推送通道的唯一条件，因此必须确保你[在即时通讯 IM 中集成 FCM 时设置的 Sender ID](#initialization)与这里设置的一致。|
-| **Sound** | String | 否       | 接收方收到推送通知时的铃声提醒。  |  是否生效？待验证
+| **Sound** | String | 否       | 接收方收到推送通知时的铃声标记。|
 | **Push Priority** |  | 否       | 消息传递优先级，详见 [FCM 官网](https://firebase.google.cn/docs/cloud-messaging/concept-options#setting-the-priority-of-a-message)。 |
 | **Push Msg Type** |  | 否       | 通过 FCM 向客户端发送的消息的类型，详见 [FCM 消息简介](https://firebase.google.cn/docs/cloud-messaging/concept-options#notifications_and_data_messages) 。<br/> - **Data**：数据消息，由客户端应用处理。<br/> - **Notification**：通知消息，由 FCM SDK 自动处理。<br/> - **Both**：可以通过 FCM 客户端发送通知消息和数据消息。|
 
@@ -416,7 +416,8 @@ ChatClient.getInstance().pushManager().updatePushNickname("pushNickname");
 你也可以调用 `updatePushDisplayStyle` 方法设置推送通知的显示样式，如下代码示例所示：
 
 ```java
-// `DisplayStyle` 设置为简单样式 `SimpleBanner`，只显示 "你有一条新消息"。若要显示消息内容，需设置为 `MessageSummary`。
+// `DisplayStyle` 设置为简单样式 `SimpleBanner`，推送标题为 "您有一条新消息"，推送内容为“请点击查看”。
+// 若设置为 `MessageSummary`，推送标题为 "您有一条新消息"，推送内容为具体的消息内容。
 PushManager.DisplayStyle displayStyle = PushManager.DisplayStyle.SimpleBanner;
 // 需要异步处理。
 ChatClient.getInstance().pushManager().updatePushDisplayStyle(displayStyle);
