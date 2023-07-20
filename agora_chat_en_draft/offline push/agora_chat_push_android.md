@@ -191,7 +191,7 @@ PushHelper.getInstance().setPushListener(new PushListener() {
 
 ```java
 // 检查是否启用了 FCM。
-if(GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(MainActivity.this) == ConnectionResult.SUCCESS) {
+if(GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(MainActivity.this) != ConnectionResult.SUCCESS) {
     return;
 }
 FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
