@@ -14,17 +14,17 @@
 
 消息推送流程如下：
 
-1. 用户 B（消息接收者）检查设备支持哪种推送渠道，即 app 配置了哪种第三方推送服务且满足该推送的使用条件。
-2. 用户 B 根据配置的第三方推送 SDK 从第三方推送服务器获取推送 token。
-3. 第三方推送服务器向用户 B 返回推送 token。
+1. 用户 B 初始化 APNs 推送 SDK，检查是否支持 APNs 推送。
+2. 用户 B 根据配置的 APNs 推送 SDK 从 APNs 推送服务器获取推送 token。
+3. APNs 推送服务器向用户 B 返回推送 token。
 4. 用户 B 向声网即时通讯服务器上传推送证书名称和推送 token。
 5. 用户 A 向 用户 B 发送消息。
 6. 声网即时通讯服务器检查用户 B 是否在线。若在线，声网即时通讯服务器直接将消息发送给用户 B。
-7. 若用户 B 离线，声网即时通讯服务器判断该用户的设备使用的推送服务类型。
-8. 声网即时通讯服务器将将消息发送给第三方推送服务器。
-9. 第三方推送服务器将消息发送给用户 B。
+7. 若用户 B 离线，声网即时通讯服务器判断该用户是否使用了 APNs 推送。
+8. 声网即时通讯服务器将将消息发送给 APNs 推送服务器。
+9. APNs 推送服务器将消息发送给用户 B。
 
-<div class="alert info">device token 是第三方推送厂商提供的推送 token，该 token 用于标识每台设备上每个应用。各推送厂商通过该 token 明确要发送的消息是发送给哪个设备的，然后将消息转发给设备，设备再通知应用程序。对于 APNs 推送，该 device token 指初次启动你的应用时，APNs SDK 为客户端应用实例生成的推送 token，你可以调用 registerForRemoteNotifications 方法获得 token。另外，如果退出即时通讯 IM 登录时不解绑 device token（调用 `logout` 方法时对 `aIsUnbindDeviceToken` 参数传 `NO` 表示不解绑 device token，传 `YES` 表示解绑 token），用户在推送证书有效期和 token 有效期内仍会接收到离线推送通知。</div>
+<div class="alert info">device token 是 APNs 推送提供的推送 token，即初次启动你的应用时，APNs SDK 为客户端应用实例生成的推送 token。该 token 用于标识每台设备上的每个应用，APNs 通过该 token 明确消息是发送给哪个设备的，然后将消息转发给设备，设备再通知应用程序。你可以调用 registerForRemoteNotifications 方法获得 token。另外，如果退出即时通讯 IM 登录时不解绑 device token（调用 `logout` 方法时对 `aIsUnbindDeviceToken` 参数传 `NO` 表示不解绑 device token，传 `YES` 表示解绑 token），用户在推送证书有效期和 token 有效期内仍会接收到离线推送通知。</div>
 
 ## 前提条件
 
@@ -194,7 +194,7 @@ Device Token 注册后，iOS 系统会通过以下方式将 Device Token 回调�
 
    在左侧导航栏中选择 **Operation Management** > **User**。在用户管理页面中，在对应用户 ID 的 **Action** 栏中选择 **Send Admin Message**。
 
-    在弹出的对话框中选择消息类型，输入消息内容，然后点击 **Send**。
+   在弹出的对话框中选择消息类型，输入消息内容，然后点击 **Send**。
 
 4. 查看设备是否收到推送通知。
 
@@ -381,6 +381,10 @@ NSArray *conversations = @[conv1];
 }];
 ```
 
+添加四个截图？单聊和群聊界面分别添加以下两种截图：
+a. 设置了推送昵称，`DisplayStyle` 设置为简单样式 `SimpleBanner`。
+b. 设置了推送昵称，`DisplayStyle` 设置为显示消息内容 `MessageSummary`。
+
 ### 获取推送通知的显示属性
 
 你可以调用 `getPushNotificationOptionsFromServerWithCompletion` 方法获取推送通知中的显示属性，如以下代码示例所示：
@@ -440,7 +444,7 @@ AgoraChatMessage *message = [[AgoraChatMessage alloc]initWithConversationID:@"co
        NSDictionary *pushObject = @{
            @"name":@"templateName",// 设置推送模板名称。
            @"title_args":@[@"titleValue1"],// 设置推送标题变量。如果模板中指定的推送标题为占位数据，则在这里可自定义标题；若指定的标题为固定值，则使用该模板时标题为固定值。
-           @"content_args":@[@"contentValue1"]// 设置推送内容变量。如果模板中指定的推送标题为占位数据，则在这里可自定义标题；若指定的标题为固定值，则使用该模板时标题为固定值。
+           @"content_args":@[@"contentValue1"]// 设置推送内容变量。如果模板中指定的推送内容为占位数据，则在这里可自定义推送内容；若指定的推送内容为固定值，则使用该模板时推送内容为固定值。
        };
        message.ext = @{
            @"em_push_template":pushObject,
@@ -448,6 +452,22 @@ AgoraChatMessage *message = [[AgoraChatMessage alloc]initWithConversationID:@"co
        message.chatType = AgoraChatTypeChat;
 [[AgoraChatClient sharedClient].chatManager sendMessage:message progress:nil completion:nil];
 ```
+
+推送模板的 JSON 结构如下：
+
+```json
+"em_push_template":{
+        "name":"test6",
+        "title_args":[
+            "test1"
+        ],
+        "content_args":[
+            "{$fromNickname}",
+            "{$msg}"
+        ]
+}
+```
+
 ### 解析收到的推送字段
 
 当设备收到推送并点击时，iOS 会通过 launchOptions 将推送中的 JSON 传递给 app，这样就可以根据推送的内容定制 app 的一些行为，比如页面跳转等。 当收到推送通知并点击推送时，app 获取推送内容的方法：
@@ -505,68 +525,49 @@ AgoraChatTextMessageBody *body = [[AgoraChatTextMessageBody alloc] initWithText:
     [AgoraChatClient.sharedClient.chatManager sendMessage:message progress:nil completion:nil];
 ```
 
-| 参数             | 描述                |
-| :--------------- | :------------------ |
-| `body`           | 消息内容。      |
-| `conversationId` | 消息所属的会话 ID。 |
-| `from`           | 消息发送方的用户 ID。  |
-| `to`             | 消息接收方的用户 ID。  |
-| `em_apns_ext`    | 消息扩展字段。      |
-| `extern`         | 消息扩展字段的 Key，该名称固定，不可修改。  |
-
 包含自定义字段的消息的数据结构如下：
 
 ```json
 {
-  "payload": {
-    "ext": {
-      "em_apns_ext": {
-        "extern":{}
-      }
+    "em_apns_ext": {
+      "extern": {"test": 123}
     }
-  }
 }
 ```
+
+| 参数             | 描述                |
+| :--------------- | :------------------ |
+| `em_apns_ext`    | 消息扩展字段。      |
+| `extern`         | 消息扩展字段的 Key，该名称固定，不可修改。  |
 
 ### 自定义推送显示
 
 创建推送消息时，你可以设置消息扩展字段自定义要显示的推送内容。
 
-对于推送通知的显示属性，即推送通知的显示属性和显示样式，除了调用具体方法，你还可以通过自定义字段设置。若你同时采用了这两种方法，设置的自定义字段优先级较高。
+对于推送通知的显示属性，即推送通知的显示属性和显示样式，除了调用具体方法设置，你还可以通过自定义字段设置。若你同时采用了这两种方法，设置的自定义字段优先级较高。
 
 ```Objective-C
 AgoraChatTextMessageBody *body = [[AgoraChatTextMessageBody alloc] initWithText:@"test"];
     AgoraChatMessage *message = [[AgoraChatMessage alloc] initWithConversationID:conversationId from:AgoraChatClient.sharedClient.currentUsername to:conversationId body:body ext:nil];
-    message.ext = @{@"em_apns_ext":@{@"em_push_content":@"custom push content"}};
+    message.ext = @{@"em_apns_ext":@{@"em_push_content":@"custom push content",@"em_push_title":@"custom push title"}};
     message.chatType = AgoraChatTypeChat;
     [AgoraChatClient.sharedClient.chatManager sendMessage:message progress:nil completion:nil];
 ```
-
-| 参数              | 描述                |
-| :---------------- | :------------------ |
-| `body`            | 消息内容。     |
-| `conversationId`  | 消息所属的会话 ID。 |
-| `from`            | 消息发送方的用户 ID。  |
-| `to`              | 消息接收方的用户 ID。  |
-| `em_apns_ext`     | 消息扩展字段。      |
-| `em_push_content` | 消息扩展字段的 Key，该名称固定，不可修改。  |
 
 包含自定义显示字段的消息的结构如下：
 
 ```json
 {
-  "payload": {
-    "ext": {
-      "em_apns_ext": {
-        "em_push_content":"自定义推送显示内容"
-      }
+    "em_apns_ext": {
+       "em_push_title": "custom push title", 
+       "em_push_content": "custom push content"
     }
-  }
-}
+}  
 ```
 
 | 参数              | 描述               |
 | :---------------- | :----------------- |
+| `em_apns_ext`     | 消息扩展字段。      |
 | `em_push_title` | 自定义推送消息标题。该字段名固定，不可修改。     |
 | `em_push_content` | 自定义推送消息内容。该字段名固定，不可修改。     |
 
@@ -579,7 +580,7 @@ AgoraChatTextMessageBody *body = [[AgoraChatTextMessageBody alloc] initWithText:
     AgoraChatMessage *message = [[AgoraChatMessage alloc] initWithConversationID:conversationId from:AgoraChatClient.sharedClient.currentUsername to:conversationId body:body ext:nil];
     message.ext = @{@"em_apns_ext":@{@"em_push_sound":@"custom.caf"}};
     message.chatType = AgoraChatTypeChat;
-    [AgoraChatClient.sharedClient.chatManager sendMessage:message progress:nil comple****tion:nil];
+    [AgoraChatClient.sharedClient.chatManager sendMessage:message progress:nil completion:nil]; 
 ```
 
 | 参数             | 描述                 |
@@ -606,6 +607,16 @@ AgoraChatTextMessageBody *body = [[AgoraChatTextMessageBody alloc] initWithText:
 }
 ```
 
+```json
+{
+  "ext": {
+    "em_apns_ext": {
+      "em_push_sound":"custom.caf"
+    }
+  }
+}
+```
+
 ### 强制推送
 
 设置强制推送后，用户发送消息时会忽略接收方的免打扰设置，不论是否处于免打扰时间段都会正常向接收方推送消息。
@@ -624,7 +635,7 @@ message.chatType = AgoraChatTypeChat;
 | `conversationId`        | 消息所属的会话 ID。                         |
 | `from`                  | 消息发送方的用户 ID。                          |
 | `to`                    | 消息接收方的用户 ID。                          |
-| `em_force_notification` | 是否为强制推送：<ul><li>`YES`：强制推送</li><li> （默认）`NO`：非强制推送。</li></ul><br/>该字段名固定，不可修改。|
+| `em_force_notification` | 是否为强制推送：<ul><li>`YES`：强制推送</li><li>（默认）`NO`：非强制推送。</li></ul><br/>该字段名固定，不可修改。|
 
 ### 发送静默消息
 
@@ -667,7 +678,7 @@ message.chatType = AgoraChatTypeChat;
 | `from`                    | 消息发送方的用户 ID。             |
 | `to`                      | 消息接收方的用户 ID。             |
 | `em_apns_ext`             | 消息扩展字段，该字段名固定，不可修改。该字段用于配置富文本推送通知，包含自定义字段。 |
-| `em_push_mutable_content` | 是否使用富文本推送通知（`em_apns_ext`）：<ul><li>`YES`：富文本推送通知；</li><li> （默认）`NO`：普通推送通知。<br/>该字段名固定，不可修改。  |
+| `em_push_mutable_content` | 是否使用富文本推送通知（`em_apns_ext`）：<ul><li>`YES`：富文本推送通知；</li><li>（默认）`NO`：普通推送通知。</li></ul><br/>该字段名固定，不可修改。  |
 
 声网服务器会解析该推送消息，如下所示。也就是说，接收方收到如下结构的推送消息。
 

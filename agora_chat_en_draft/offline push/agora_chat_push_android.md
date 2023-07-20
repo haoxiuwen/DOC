@@ -255,13 +255,11 @@ public void onNewToken(@NonNull String token) {
 2. 检查是否在声网控制台上传了正确的 FCM 证书。
 3. 检查是否在聊天室中推送消息。聊天室不支持离线消息推送。
 4. 检查设备是否为国行手机的 ROM。一些品牌的国产手机不支持 GMS 服务，需替换为海外发售的设备。
+5. 检查发送消息时是否设置了只发在线(deliverOnlineOnly = true)。只发在线的消息不推送。
 
 ## 设置推送通知 
 
-在你完成 SDK 初始化和成功登录 app 后，可以对 app 以及各类型的会话开启和关闭离线推送功能，关闭时可设置关闭时长。即时通讯 IM 支持你对离线推送功能进行如下设置：
-
-- 设置推送通知，包含在 app 和会话层面设置推送通知方式和免打扰模式。
-- 配置推送翻译和推送模板。
+为优化用户在处理大量推送通知时的体验，即时通讯 IM 在 app 和会话层面提供了推送通知方式和免打扰模式的细粒度选项。 
 
 **推送通知方式**
 
@@ -504,7 +502,7 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 
 推送模板的 JSON 结构如下：
 
-```java
+```json
 "em_push_template":{
         "name":"test6",
         "title_args":[
@@ -586,16 +584,9 @@ message.setMessageStatusCallback(new CallBack() {...});
 ChatClient.getInstance().chatManager().sendMessage(message);
 ```
 
-| 参数             | 描述               |
-| :--------------- | :----------------- |
-| `txtBody`        | 推送消息内容。     |
-| `receiver`       | 消息接收方的用户 ID。 |
-| `em_apns_ext`    | 消息扩展字段。该字段名固定，不可修改。     |
-| `test1`          | 用户添加的自定义 key。  |
-
 包含自定义字段的消息的数据结构如下：
 
-```java
+```json
 {
     "em_apns_ext": {
         "test1": "test 01",
@@ -603,16 +594,17 @@ ChatClient.getInstance().chatManager().sendMessage(message);
     }
 }
 ```
-
 | 参数             | 描述               |
 | :--------------- | :----------------- |
-| `em_push_collapse_key`        | 指定一组可折叠的消息（例如，含有 collapse_key: “Updates Available”），以便当恢复传送时只发送最后一条消息。这是为了避免当设备恢复在线状态或变为活跃状态时重复发送过多相同的消息。   |
+| `em_apns_ext`    | 消息扩展字段。该字段名固定，不可修改。     |
+| `test1`          | 用户添加的自定义 key。  |
+| `em_push_collapse_key`   | 指定一组可折叠的消息（例如，含有 collapse_key: “Updates Available”），以便当恢复传送时只发送最后一条消息。这是为了避免当设备恢复在线状态或变为活跃状态时重复发送过多相同的消息。   |
 
 ### 自定义推送显示
 
 创建推送消息时，你可以设置消息扩展字段自定义要显示的推送内容。
 
-对于推送通知的显示属性，即推送昵称和推送通知显示样式，除了调用具体方法，你还可以通过自定义字段设置。若你同时采用了这两种方法，设置的自定义字段优先级较高。
+对于推送通知的显示属性，即推送昵称和推送通知显示样式，除了调用具体方法设置，你还可以通过自定义字段设置。若你同时采用了这两种方法，设置的自定义字段优先级较高。
 
 ```java
 // 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
@@ -638,12 +630,6 @@ message.setMessageStatusCallback(new CallBack() {...});
 ChatClient.getInstance().chatManager().sendMessage(message);
 ```
 
-| 参数              | 描述               |
-| :---------------- | :----------------- |
-| `em_apns_ext`     | 消息扩展字段。该字段名固定，不可修改。     |
-| `em_push_title`   | 自定义推送消息标题。该字段名固定，不可修改。     |
-| `em_push_content` | 自定义推送消息内容。该字段名固定，不可修改。     |
-
 包含自定义显示字段的消息的结构如下：
 
 ```java
@@ -654,6 +640,12 @@ ChatClient.getInstance().chatManager().sendMessage(message);
     }
 }
 ```
+
+| 参数              | 描述               |
+| :---------------- | :----------------- |
+| `em_apns_ext`     | 消息扩展字段。该字段名固定，不可修改。     |
+| `em_push_title`   | 自定义推送消息标题。该字段名固定，不可修改。     |
+| `em_push_content` | 自定义推送消息内容。该字段名固定，不可修改。     |
 
 ### 强制推送<a name="forced"></a>
 
