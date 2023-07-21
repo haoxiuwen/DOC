@@ -2,7 +2,13 @@
 
 即时通讯 IM 支持集成 FCM 消息推送服务，为 Android 开发者提供低延时、高送达、高并发、不侵犯用户个人数据的离线消息推送服务。
 
-当客户端断开连接或应用进程被关闭等原因导致用户离线，即时通讯 IM 会通过 FCM 消息推送服务向该离线用户的设备推送消息通知。当用户再次上线时，服务器会将离线期间的消息发送给用户。仅单聊和群聊会话支持离线推送，聊天室不支持。
+要使用 FCM 离线推送，需满足以下条件：
+
+1. 客户端断开连接或应用进程被关闭等原因导致用户离线。即时通讯 IM 会通过 FCM 消息推送服务向该离线用户的设备推送消息通知。当用户再次上线时，服务器会将离线期间的消息发送给用户。若应用在后台运行，则用户仍为在线状态，即时通讯 IM 不会向用户推送消息通知。
+2. 用户在声网控制台配置了 FCM 推送证书信息，例如 **Private Key** 和 **Certificate Name**。
+3. 用户向声网即时通讯服务器上传了 device token。
+
+仅单聊和群聊会话支持离线推送，聊天室不支持。
 
 本文介绍如何在客户端应用中实现 FCM 推送服务。 
 
@@ -406,7 +412,9 @@ ChatClient.getInstance().pushManager().clearRemindTypeForConversation(conversati
 
 ### 设置推送通知的显示属性<a name="display"></a>
 
-你可以调用 `updatePushNickname` 方法设置推送通知中显示的昵称，如以下代码示例所示：
+你可以调用 `updatePushNickname` 方法设置推送通知中显示的昵称。设置的昵称只在推送通知的显示样式设置为 `MessageSummary` 时生效，在推送通知的显示样式采用默认的简单样式 `SimpleBanner` 时不生效。
+
+如以下代码示例所示：
 
 ```java
 // 需要异步处理。
@@ -416,16 +424,32 @@ ChatClient.getInstance().pushManager().updatePushNickname("pushNickname");
 你也可以调用 `updatePushDisplayStyle` 方法设置推送通知的显示样式，如下代码示例所示：
 
 ```java
-// `DisplayStyle` 设置为简单样式 `SimpleBanner`，推送标题为 "您有一条新消息"，推送内容为“请点击查看”。
+// 若使用默认的简单样式 `SimpleBanner`，推送标题为 "您有一条新消息"，推送内容为“请点击查看”。
 // 若设置为 `MessageSummary`，推送标题为 "您有一条新消息"，推送内容为具体的消息内容。
 PushManager.DisplayStyle displayStyle = PushManager.DisplayStyle.SimpleBanner;
 // 需要异步处理。
 ChatClient.getInstance().pushManager().updatePushDisplayStyle(displayStyle);
 ```
 
-添加四个截图？单聊和群聊界面分别添加
-a. 设置了推送昵称，`DisplayStyle` 设置为简单样式 `SimpleBanner`。
-b. 设置了推送昵称，`DisplayStyle` 设置为显示消息内容 `MessageSummary`。
+下面为设置显示属性后的界面显示示例：
+
+1. 若推送通知的显示样式采用默认的简单样式 `SimpleBanner`，单聊（无论是否设置显示昵称）和群聊的推送标题为 “您有一条新消息”，推送内容为“请点击查看”，界面显示如下：
+
+push_displayattribute_1.png
+
+2. 若推送通知的显示样式设置为 `MessageSummary`，存在以下情况：
+
+- 对于单聊，若设置了显示的昵称，例如 `Amy`，推送标题为 “您有一条新消息”，推送内容的格式为“消息发送方的推送昵称：消息内容”，界面显示如下：
+
+push_displayattribute_2.png
+
+- 对于单聊，若显示的昵称不设置，推送标题为 “您有一条新消息”，推送内容格式为“消息发送方的 IM 用户 ID: 消息内容”，界面显示如下：
+
+push_displayattribute_3.png
+
+- 对于群聊，推送标题为 “您有一条新消息”，推送内容的格式为“群组 ID: 消息内容”，界面显示如下：
+
+push_displayattribute_4.png
 
 ### 获取推送通知的显示属性
 
