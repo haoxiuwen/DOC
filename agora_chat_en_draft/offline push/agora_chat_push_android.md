@@ -2,11 +2,11 @@
 
 即时通讯 IM 支持集成 FCM 消息推送服务，为 Android 开发者提供低延时、高送达、高并发、不侵犯用户个人数据的离线消息推送服务。
 
-仅单聊和群聊会话支持离线推送，聊天室不支持。要使用 FCM 离线推送，需满足以下条件：
+客户端断开连接或应用进程被关闭等原因导致用户离线时，即时通讯 IM 会通过 FCM 消息推送服务向该离线用户的设备推送消息通知。当用户再次上线时，服务器会将离线期间的消息发送给用户。若应用在后台运行，则用户仍为在线状态，即时通讯 IM 不会向用户推送消息通知。
 
-1. 客户端断开连接或应用进程被关闭等原因导致用户离线。即时通讯 IM 会通过 FCM 消息推送服务向该离线用户的设备推送消息通知。当用户再次上线时，服务器会将离线期间的消息发送给用户。若应用在后台运行，则用户仍为在线状态，即时通讯 IM 不会向用户推送消息通知。
-2. 用户在声网控制台配置了 FCM 推送证书信息，例如 **Private Key** 和 **Certificate Name**。
-3. 用户向声网即时通讯服务器上传了 device token。
+<div class="alert note">1. 应用在后台运行或手机锁屏等情况，若客户端未断开与声网服务器的连接，则即时通讯 IM 不会收到离线推送通知。<br/>2. 多端登录时若有设备被踢下线，即使接入了 IM 离线推送，也收不到离线推送消息。
+
+除了满足用户离线条件外，要使用 FCM 离线推送，用户还需声网控制台配置 FCM 推送证书信息，例如 **Private Key** 和 **Certificate Name**，并向声网即时通讯服务器上传 device token。
 
 本文介绍如何在客户端应用中实现 FCM 推送服务。 
 
@@ -27,7 +27,6 @@
 9. FCM 推送服务器将消息发送给用户 B。
 
 <div class="alert info">device token 是 FCM 推送提供的推送 token，即初次启动你的应用时，FCM SDK 为客户端应用实例生成的注册令牌 (registration token)。该 token 用于标识每台设备上的每个应用，FCM 通过该 token 明确消息是发送给哪个设备的，然后将消息转发给设备，设备再通知应用程序。你可以调用 FirebaseMessaging.getInstance().getToken() 方法获得 token。另外，如果退出即时通讯 IM 登录时不解绑 device token（调用 `logout` 方法时对 `unbindToken` 参数传 `false` 时不解绑 device token，传 `true` 表示解绑 token），用户在推送证书有效期和 token 有效期内仍会接收到离线推送通知。</div>
-
 ## 前提条件
 
 - 已开启即时通讯 IM ，详见[开启和配置即时通讯服务](./enable_agora_chat)。
@@ -45,20 +44,21 @@
 
 ### 在 Firebase 控制台创建 Android 项目
 
-1. 登录 [Firebase 控制台](https://console.firebase.google.com/)，单击 **Add project**。
-2. 在 **Create a project** 页面输入项目名称，点击 **Continue**。
-3. (可选) 选择 **Enable Google Analytics for this project**。该选项默认启用，若不需要，可将其关闭。
-4. 项目创建完毕，界面提示 **Your new project is ready**。点击 **Continue** 打开项目页面，点击 **Android** 图标注册 Android 项目。
-5. 在 **Add Firebase to your Android app** 页面中，进行如下操作：
-    i. 在 **Register app** 步骤中，输入 Android 包名、应用昵称（可选）和调试签名证书 SHA-1（可选），然后单击 **Register app**。
-    ii. 在 **Download and then add config file** 步骤中，点击 **Download google-services.json**，将该文件放入你的 Android 应用模块的根目录，然后单击 **Next**。
-    iii. 在 **Add Firebase SDK** 步骤中，修改 **build.gradle** 文件以便使用 Firebase，然后单击 **Next**。
-    iv. 在 **Next steps** 步骤中，单击 **Continue to console** 返回项目页面。
-6. 在项目页面中，单击你创建的 Android 项目，然后单击左侧导航栏右上角 **Project Overview** 旁边的项目设置图标。
-7. 在 **Project settings** 页面，选择 **Cloud Messaging** 页签，查看 **Server ID**。在声网控制台上传 FCM 证书时，需要将证书名称设置为 FCM 的发送者 ID。
-8. 在 **Project settings** 页面，选择 **Service accounts** 页签，点击 **Generate new private key** 按钮生成密钥（JSON 文件）。请保存该文件，使用 V1 证书时需在声网控制台上传该文件。
+1. 登录 [Firebase 控制台](https://console.firebase.google.com/)，[添加项目](https://firebase.google.com/docs/web/setup/#create-firebase-project)。
 
-[img](fcm_private-key)
+2. 在项目中[注册应用](https://firebase.google.com/docs/web/setup/#create-firebase-project)。
+
+   在 **Add Firebase to your Android app** 页面中的 **Download and then add config file** 步骤中，点击 **Download google-services.json**，将该文件放入你的 Android 应用模块的根目录。
+
+   [img] push_fcm_download_googleservice.png
+
+3. 查询 Sender ID。在 **Project settings** 页面，选择 **Cloud Messaging** 页签，查看 **Server ID**。在声网控制台上传 FCM 证书时，需要将证书名称设置为 FCM 的发送者 ID。
+
+   [img] push_fcm_senderid.png
+
+4. 在 **Project settings** 页面，选择 **Service accounts** 页签，点击 **Generate new private key** 按钮生成密钥（JSON 文件）。请保存该文件，使用 V1 证书时需在声网控制台上传该文件。
+
+  [img](fcm_private-key)
 
 ### 在声网控制台配置 FCM 推送
 
@@ -80,7 +80,7 @@
 
 在 **Push Certificate** 页面，单击 **Add Push Certificate**。在弹出的对话框中，选择 **Google** 页签，配置字段，单击**保存**。
 
-[img](FCM_add_push_certificate.png)
+[img](push_fcm_add_certificate.png)
 
 | 参数       | 类型   | 是否必需 | 描述        |
 | :--------- | :----- | :------- | :----------------------- |
@@ -193,6 +193,8 @@ PushHelper.getInstance().setPushListener(new PushListener() {
 
 4. 将 FCM 的 device token 传递给即时通讯 IM SDK。
 
+在应用初始化时，FCM SDK 会为用户的设备上的客户端应用生成唯一的注册 token。由于 FCM 使用该 token 确定要将推送消息发送给哪个设备，因此，声网服务器需要获得客户端应用的注册 token 才能将通知请求发送给 FCM，然后 FCM 验证注册 token，将通知消息发送给 Android 设备。
+
 ```java
 // 检查是否启用了 FCM。
 if(GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(MainActivity.this) != ConnectionResult.SUCCESS) {
@@ -214,6 +216,8 @@ FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteL
 ```
 
 5. 监控 device token 生成。
+
+FCM SDK 成功生成注册 token（device token）后，会传递给 `onNewToken` 回调。
 
 重写 `FirebaseMessagingService` 中的 `onNewToken` 回调。device token 生成后，该回调会及时将新 token 更新到即时通讯 IM SDK。
 
@@ -247,15 +251,13 @@ public void onNewToken(@NonNull String token) {
 2. 开启应用通知栏权限。
 3. 杀掉应用进程。
 4. 在声网控制台发送测试消息。
-   在左侧导航栏中选择 **Operation Management** > **User**。在用户管理页面中，在对应用户 ID 的 **Action** 栏中选择 **Send Admin Message**。
-   在弹出的对话框中选择消息类型，输入消息内容，然后点击 **Send**。
+   在左侧导航栏中选择 **Operation Management** > **User**。在用户管理页面中，在对应用户 ID 的 **Action** 栏中选择 **Send Admin Message**。在弹出的对话框中选择消息类型，输入消息内容，然后点击 **Send**。
 5. 查看设备是否收到推送通知。
 
 ### 故障排除
 
 1. 检查在即时通讯 IM 中是否正确集成或启用了 FCM 推送。
-   在左侧导航栏中选择 **Operation Management > User**。在用户管理页面中，在对应用户 ID 的 **Action** 栏中选择 **Push Certificate**。
-   在弹出框中查看是否正确显示了证书名称和 device token。
+   在左侧导航栏中选择 **Operation Management > User**。在用户管理页面中，在对应用户 ID 的 **Action** 栏中选择 **Push Certificate**。在弹出框中查看是否正确显示了证书名称和 device token。
 2. 检查是否在声网控制台上传了正确的 FCM 证书。
 3. 检查是否在聊天室中推送消息。聊天室不支持离线消息推送。
 4. 检查设备是否为国行手机的 ROM。一些品牌的国产手机不支持 GMS 服务，需替换为海外发售的设备。
@@ -383,7 +385,7 @@ ChatClient.getInstance().pushManager().getSilentModeForConversation(conversation
 
 1. 你可以在每次调用中最多获取 20 个会话的推送通知设置。
 
-2. 如果会话继承了 app 设置或其推送通知设置已过期，则返回的字典不包含此会话。
+2. 如果会话使用了 app 设置或其推送通知设置已过期，则返回的字典不包含此会话。
 
 你可以调用 `getSilentModeForConversations` 方法获取多个会话的推送通知设置，如以下示例代码所示：
 
@@ -627,7 +629,7 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 
 创建推送消息时，你可以设置消息扩展字段自定义要显示的推送内容。
 
-对于推送通知的显示属性，即推送昵称和推送通知显示样式，除了调用具体方法设置，你还可以通过自定义字段设置。若你同时采用了这两种方法，设置的自定义字段优先级较高。
+对于推送通知的显示属性，即推送昵称和推送通知显示样式，除了[调用具体方法设置](#display)，你还可以通过自定义字段设置。若你同时采用了这两种方法，设置的自定义字段优先级较高。
 
 ```java
 // 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
@@ -690,8 +692,8 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 
 | 参数                    | 描述                                                        |
 | :---------------------- | :---------------------------------------------------------- |
-| `txtBody`               | 推送消息内容。                                              |
-| `receiver`        | 消息接收方：<ul><li>单聊为对端用户的用户 ID；</li><li>群聊为群组 ID。</li></ul>                                        |
+| `txtBody`               | 推送消息内容。   |
+| `receiver`        | 消息接收方：<ul><li>单聊为对端用户的用户 ID；</li><li>群聊为群组 ID。</li></ul>      |
 | `em_force_notification` | 是否为强制推送：<ul><li>`true`：强制推送；</li><li>（默认）`false`：非强制推送。</li></ul><br/>该字段名固定，不可修改。 |
 
 ### 发送静默消息
@@ -714,8 +716,8 @@ message.setMessageStatusCallback(new CallBack() {...});
 ChatClient.getInstance().chatManager().sendMessage(message);
 ```
 
-| 参数                    | 描述                                                        |
-| :---------------------- | :---------------------------------------------------------- |
+| 参数        | 描述                     |
+| :-------------- | :--------- |
 | `txtBody`               | 消息内容。                                              |
 | `receiver`        | 消息接收方：<ul><li>单聊为对端用户的用户 ID；</li><li>群聊为群组 ID。</li></ul>       |
 | `em_ignore_notification` | 是否发送静默消息：<ul><li>`true`：发送静默消息；</li><li>（默认）`false`：推送该消息。</li></ul><br/>该字段名固定，不可修改。 |
