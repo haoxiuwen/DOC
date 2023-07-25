@@ -4,7 +4,7 @@
 
 客户端断开连接或应用进程被关闭等原因导致用户离线时，即时通讯 IM 会通过 FCM 消息推送服务向该离线用户的设备推送消息通知。当用户再次上线时，服务器会将离线期间的消息发送给用户。若应用在后台运行，则用户仍为在线状态，即时通讯 IM 不会向用户推送消息通知。
 
-<div class="alert note">1. 应用在后台运行或手机锁屏等情况，若客户端未断开与声网服务器的连接，则即时通讯 IM 不会收到离线推送通知。<br/>2. 多端登录时若有设备被踢下线，即使接入了 IM 离线推送，也收不到离线推送消息。
+<div class="alert note">1. 应用在后台运行或手机锁屏等情况，若客户端未断开与声网服务器的连接，则即时通讯 IM 不会收到离线推送通知。<br/>2. 多端登录时若有设备被踢下线，即使接入了 IM 离线推送，也收不到离线推送消息。</div>
 
 除了满足用户离线条件外，要使用 FCM 离线推送，用户还需声网控制台配置 FCM 推送证书信息，例如 **Private Key** 和 **Certificate Name**，并向声网即时通讯服务器上传 device token。
 
@@ -161,7 +161,7 @@ public class FCMMSGService extends FirebaseMessagingService {
 </service>
 ```
 
-3. 在即时通讯 IM SDK 中初始化并开启 FCM。<a name="initialization"></a>
+3. 初始化即时通讯 IM SDK 并开启 FCM。<a name="initialization"></a>
 
 ```java
 ChatOptions options = new ChatOptions();
@@ -181,7 +181,7 @@ PushHelper.getInstance().setPushListener(new PushListener() {
     }
     @Override
     public boolean isSupportPush(PushType pushType, PushConfig pushConfig) {
-        // Sets whether FCM is enabled.
+        // 设置是否开启 FCM。
         if(pushType == PushType.FCM) {
             return GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(MainActivity.this)
                         == ConnectionResult.SUCCESS;
@@ -589,9 +589,6 @@ public class FCMMSGService extends FirebaseMessagingService {
 ```java
 // 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
 ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
-TextMessageBody txtBody = new TextMessageBody("message content");
-// 设置消息接收方：单聊为对端用户的用户 ID；群聊为群组 ID。
-message.setTo("receiver");
 // 设置自定义推送字段。
 JSONObject extObject = new JSONObject();
 try {
@@ -601,12 +598,6 @@ try {
 }
 // 将推送扩展设置到消息中。
 message.setAttribute("em_apns_ext", extObject);
-// 设置消息体。
-message.addBody(txtBody);
-// 设置消息回调。
-message.setMessageStatusCallback(new CallBack() {...});
-// 发送消息。
-ChatClient.getInstance().chatManager().sendMessage(message);
 ```
 
 包含自定义字段的消息的数据结构如下：
@@ -625,6 +616,36 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 | `test1`          | 用户添加的自定义 key。  |
 | `em_push_collapse_key`   | 指定一组可折叠的消息（例如，含有 collapse_key: “Updates Available”），以便当恢复传送时只发送最后一条消息。这是为了避免当设备恢复在线状态或变为活跃状态时重复发送过多相同的消息。   |
 
+### 设置 FCM 通知栏折叠
+
+```java
+// 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
+ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
+// 设置自定义推送字段。
+JSONObject extObject = new JSONObject();
+try {
+    extObject.put("em_push_collapse_key", "collapseKey"); 
+} catch (JSONException e) {
+    e.printStackTrace();
+}
+// 将推送扩展设置到消息中。
+message.setAttribute("em_apns_ext", extObject);
+```
+
+包含自定义字段的消息的数据结构如下：
+
+```json
+{
+    "em_apns_ext": {
+        "em_push_collapse_key": "collapseKey"
+    }
+}
+```
+| 参数             | 描述               |
+| :--------------- | :----------------- |
+| `em_apns_ext`    | 消息扩展字段。该字段名固定，不可修改。     |
+| `em_push_collapse_key`   | 指定一组可折叠的消息（例如，含有 collapse_key: “Updates Available”），以便当恢复传送时只发送最后一条消息。这是为了避免当设备恢复在线状态或变为活跃状态时重复发送过多相同的消息。   |
+
 ### 自定义推送显示
 
 创建推送消息时，你可以设置消息扩展字段自定义要显示的推送内容。
@@ -634,25 +655,16 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 ```java
 // 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
 ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
-TextMessageBody txtBody = new TextMessageBody("message content");
-// 设置消息接收方：单聊为对端用户的用户 ID；群聊为群组 ID。
-message.setTo("receiver"); 
 // 设置自定义推送显示。
 JSONObject extObject = new JSONObject();
 try {
-    extObject.put("em_push_title", "custom push title");
-    extObject.put("em_push_content", "custom push content");
+    extObject.put("em_push_title", "custom push title"); // 自定义推送消息标题。该字段名固定，不可修改。 
+    extObject.put("em_push_content", "custom push content"); // 自定义推送消息内容。该字段名固定，不可修改。
 } catch (JSONException e) {
     e.printStackTrace();
 }
-// 将推送扩展设置到消息中。
+// 将推送扩展设置到消息中。该字段为内置内置字段，用于设置推送扩展。
 message.setAttribute("em_apns_ext", extObject);
-// 设置消息体。
-message.addBody(txtBody);
-// 设置消息回调。
-message.setMessageStatusCallback(new CallBack() {...});
-// 发送消息。
-ChatClient.getInstance().chatManager().sendMessage(message);
 ```
 
 包含自定义显示字段的消息的结构如下：
@@ -666,12 +678,6 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 }
 ```
 
-| 参数              | 描述               |
-| :---------------- | :----------------- |
-| `em_apns_ext`     | 消息扩展字段。该字段名固定，不可修改。     |
-| `em_push_title`   | 自定义推送消息标题。该字段名固定，不可修改。     |
-| `em_push_content` | 自定义推送消息内容。该字段名固定，不可修改。     |
-
 ### 强制推送<a name="forced"></a>
 
 设置强制推送后，用户发送消息时会忽略接收方的免打扰设置，不论是否处于免打扰时间段都会正常向接收方推送消息。
@@ -679,22 +685,9 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 ```java
 // 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
 ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
-TextMessageBody txtBody = new TextMessageBody("test");
-// 设置消息接收方：单聊为对端用户的用户 ID；群聊为群组 ID。
-message.setTo("receiver");
-// 设置自定义扩展字段。
+// 该字段为内置内置字段，用于设置是否为强制推送：<ul><li>`true`：强制推送；</li><li>（默认）`false`：非强制推送。</li></ul><br/>该字段名固定，不可修改。
 message.setAttribute("em_force_notification", true);
-// 设置消息回调。
-message.setMessageStatusCallback(new CallBack() {...});
-// 发送消息。
-ChatClient.getInstance().chatManager().sendMessage(message);
 ```
-
-| 参数                    | 描述                                                        |
-| :---------------------- | :---------------------------------------------------------- |
-| `txtBody`               | 推送消息内容。   |
-| `receiver`        | 消息接收方：<ul><li>单聊为对端用户的用户 ID；</li><li>群聊为群组 ID。</li></ul>      |
-| `em_force_notification` | 是否为强制推送：<ul><li>`true`：强制推送；</li><li>（默认）`false`：非强制推送。</li></ul><br/>该字段名固定，不可修改。 |
 
 ### 发送静默消息
 
@@ -705,19 +698,6 @@ ChatClient.getInstance().chatManager().sendMessage(message);
 ```java
 // 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
 ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
-TextMessageBody txtBody = new TextMessageBody("test");
-// 设置消息接收方：单聊为对端用户的用户 ID；群聊为群组 ID。
-message.setTo("receiver");
-// 设置自定义扩展字段。
+// 设置自定义扩展字段。是否发送静默消息：<ul><li>`true`：发送静默消息；</li><li>（默认）`false`：推送该消息。</li></ul><br/>该字段名固定，不可修改。
 message.setAttribute("em_ignore_notification", true);
-// 设置消息回调。
-message.setMessageStatusCallback(new CallBack() {...});
-// 发送消息。
-ChatClient.getInstance().chatManager().sendMessage(message);
 ```
-
-| 参数        | 描述                     |
-| :-------------- | :--------- |
-| `txtBody`               | 消息内容。                                              |
-| `receiver`        | 消息接收方：<ul><li>单聊为对端用户的用户 ID；</li><li>群聊为群组 ID。</li></ul>       |
-| `em_ignore_notification` | 是否发送静默消息：<ul><li>`true`：发送静默消息；</li><li>（默认）`false`：推送该消息。</li></ul><br/>该字段名固定，不可修改。 |
