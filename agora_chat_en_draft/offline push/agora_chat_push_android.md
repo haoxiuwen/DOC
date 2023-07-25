@@ -614,7 +614,6 @@ message.setAttribute("em_apns_ext", extObject);
 | :--------------- | :----------------- |
 | `em_apns_ext`    | 消息扩展字段。该字段名固定，不可修改。     |
 | `test1`          | 用户添加的自定义 key。  |
-| `em_push_collapse_key`   | 指定一组可折叠的消息（例如，含有 collapse_key: “Updates Available”），以便当恢复传送时只发送最后一条消息。这是为了避免当设备恢复在线状态或变为活跃状态时重复发送过多相同的消息。   |
 
 ### 设置 FCM 通知栏折叠
 
@@ -632,7 +631,7 @@ try {
 message.setAttribute("em_apns_ext", extObject);
 ```
 
-包含自定义字段的消息的数据结构如下：
+包含FCM 通知栏折叠字段的消息的数据结构如下：
 
 ```json
 {
@@ -685,7 +684,7 @@ message.setAttribute("em_apns_ext", extObject);
 ```java
 // 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
 ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
-// 该字段为内置内置字段，用于设置是否为强制推送：<ul><li>`true`：强制推送；</li><li>（默认）`false`：非强制推送。</li></ul><br/>该字段名固定，不可修改。
+// 设置是否为强制推送，该字段为内置内置字段，取值如下：`true`：强制推送；（默认）`false`：非强制推送。
 message.setAttribute("em_force_notification", true);
 ```
 
@@ -698,6 +697,6 @@ message.setAttribute("em_force_notification", true);
 ```java
 // 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
 ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
-// 设置自定义扩展字段。是否发送静默消息：<ul><li>`true`：发送静默消息；</li><li>（默认）`false`：推送该消息。</li></ul><br/>该字段名固定，不可修改。
+// 设置自定义扩展字段。该字段为内置内置字段，取值如下：`true`：发送静默消息；（默认）`false`：推送该消息。
 message.setAttribute("em_ignore_notification", true);
 ```
