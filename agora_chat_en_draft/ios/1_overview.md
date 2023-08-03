@@ -8,7 +8,7 @@
 
 除了满足用户离线条件外，要使用 APNs 离线推送，用户还需声网控制台配置推送证书信息并向声网即时通讯服务器上传 device token。
 
-要体验离线推送的 demo，请点击[这里](https://github.com/AgoraIO/Agora-Chat-API-Examples/tree/main/Chat-Android)。
+要体验离线推送功能，请点击[这里](https://testflight.apple.com/join/MO0UuYJH)下载即时推送 IM 的 demo。
 
 ## 推送流程
 

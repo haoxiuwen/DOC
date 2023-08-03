@@ -7,7 +7,7 @@
 <div class="alert note">1. 应用在后台运行或手机锁屏等情况，若客户端未断开与声网服务器的连接，则即时通讯 IM 不会收到离线推送通知。<br/>2. 多端登录时若有设备被踢下线，即使接入了 IM 离线推送，也收不到离线推送消息。</div>
 除了满足用户离线条件外，要使用 FCM 离线推送，用户还需声网控制台配置 FCM 推送证书信息，例如 **Private Key** 和 **Certificate Name**，并向声网即时通讯服务器上传 device token。 
 
-要体验离线推送的 demo，请点击[这里](https://github.com/AgoraIO/Agora-Chat-API-Examples/tree/main/Chat-iOS)。
+要体验离线推送功能，请点击[这里](https://download.agora.io/sdk/release/agorachatdemo_android_1.1.0.apk)下载即时推送 IM 的 demo。
 
 ## 推送流程
 
