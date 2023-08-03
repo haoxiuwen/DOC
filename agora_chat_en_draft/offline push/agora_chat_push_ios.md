@@ -2,9 +2,9 @@
 
 即时通讯 IM 支持集成 FCM 和 APNs 消息推送服务，为 iOS 开发者提供低延时、高送达、高并发、不侵犯用户个人数据的离线消息推送服务。
 
-客户端断开连接或应用进程被关闭等原因导致用户离线时，即时通讯 IM 会通过 FCM 消息推送服务向该离线用户的设备推送消息通知。当用户再次上线时，服务器会将离线期间的消息发送给用户。若应用在后台运行，则用户仍为在线状态，即时通讯 IM 不会向用户推送消息通知。
+客户端断开连接或应用进程被关闭等原因导致用户离线时，即时通讯 IM 会通过 FCM 消息推送服务向该离线用户的设备推送消息通知。当用户再次上线时，服务器会将离线期间的消息发送给用户。若应用在后台运行，则用户仍为在线状态，即时通讯 IM 不会向用户推送消息通知。多设备登录时，可在声网控制台的 **Push Certificate** 页面配置推送在所有设备离线或任一设备离线时发送推送消息，该配置对所有推送通道生效。
 
-<div class="alert note">1. 应用在后台运行或手机锁屏等情况，若客户端未断开与声网服务器的连接，则即时通讯 IM 不会收到离线推送通知。<br/>2. 多端登录时若有设备被踢下线，即使接入了 IM 离线推送，也收不到离线推送消息。
+<div class="alert note">1. 应用在后台运行或手机锁屏等情况，若客户端未断开与声网服务器的连接，则即时通讯 IM 不会收到离线推送通知。<br/>2. 多端登录时若有设备被踢下线，即使接入了 IM 离线推送，也收不到离线推送消息。</div>
 
 除了满足用户离线条件外，要使用 FCM 或 APNs 离线推送，用户还需声网控制台配置推送证书信息并向声网即时通讯服务器上传 device token。
 
@@ -16,12 +16,12 @@
 
 ![](push_apns_workflow.apns)
 
-消息推送流程如下：
+消息推送流程如下：  //TODO：既然这里的流程图中加了 FCM，下面的描述中是否要加 FCM？声网即时通讯服务器放在这里是否合适？
 
 1. 用户 B 初始化 APNs 推送 SDK，检查是否支持 APNs 推送。
 2. 用户 B 根据配置的 APNs 推送 SDK 从 APNs 推送服务器获取推送 token。
 3. APNs 推送服务器向用户 B 返回推送 token。
-4. 用户 B 向声网即时通讯服务器上传推送证书名称和推送 token。
+4. 用户 B 向声网即时通讯服务器上传推送证书名称和推 送 token。
 5. 用户 A 向 用户 B 发送消息。
 6. 声网即时通讯服务器检查用户 B 是否在线。若在线，声网即时通讯服务器直接将消息发送给用户 B。
 7. 若用户 B 离线，声网即时通讯服务器判断该用户是否使用了 APNs 推送。
@@ -31,6 +31,8 @@
 <div class="alert info">device token 是 APNs 推送提供的推送 token，即初次启动你的应用时，APNs SDK 为客户端应用实例生成的推送 token。该 token 用于标识每台设备上的每个应用，APNs 通过该 token 明确消息是发送给哪个设备的，然后将消息转发给设备，设备再通知应用程序。你可以调用 registerForRemoteNotifications 方法获得 token。另外，如果退出即时通讯 IM 登录时不解绑 device token（调用 `logout` 方法时对 `aIsUnbindDeviceToken` 参数传 `NO` 表示不解绑 device token，传 `YES` 表示解绑 token），用户在推送证书有效期和 token 有效期内仍会接收到离线推送通知。</div>
 
 ## 前提条件
+
+使用 APNs 推送前，确保满足以下条件：
 
 - 已开启即时通讯 IM，详见[开启和配置即时通讯服务](./enable_agora_chat)；
 - 了解即时通讯 IM 套餐包中的 API 调用频率限制，详见[使用限制](./agora_chat_limitation)。
@@ -60,7 +62,7 @@ APNs 支持 p8 和 p12 证书。声网服务端需要具备你的 APNs 证书才
 2. 创建 App ID。<a name="step1-2"></a>
     i. 登录 [iOS Developer Center](https://developer.apple.com/cn/)，选择 **Account** > **Certificates, Identifiers & Profiles** > **Identifiers**。
     ii. 在 **Identifiers** 页签，点击 **Identifiers** 右侧的 **+**。
-    iii. 在 **Register a new identifier** 页面中，选择 `App ID`，点击 `Continue`。
+    iii. 在 **Register a new identifier** 页面中，选择 `App IDs`，点击 `Continue`。
     iv. 对 **Select a type** 选择 **App**，点击 **Continue**。
     v. 在 **Register an App ID** 页面中，配置如下字段：
        - **Description**: App ID 的描述信息。
@@ -385,10 +387,6 @@ NSArray *conversations = @[conv1];
 }];
 ```
 
-添加四个截图？单聊和群聊界面分别添加以下两种截图：
-a. 设置了推送昵称，`DisplayStyle` 设置为简单样式 `SimpleBanner`。
-b. 设置了推送昵称，`DisplayStyle` 设置为显示消息内容 `MessageSummary`。
-
 ### 获取推送通知的显示属性
 
 你可以调用 `getPushNotificationOptionsFromServerWithCompletion` 方法获取推送通知中的显示属性，如以下代码示例所示：
@@ -404,7 +402,7 @@ b. 设置了推送昵称，`DisplayStyle` 设置为显示消息内容 `MessageSu
     }];
 ```
 
-## 设置离线推送的首选语言
+## 设置离线推送翻译
 
 推送通知与翻译功能协同工作。如果用户启用[自动翻译功能](./agora_chat_translation_ios)并发送消息，SDK 会同时发送原始消息和翻译后的消息。
 
@@ -598,18 +596,6 @@ AgoraChatTextMessageBody *body = [[AgoraChatTextMessageBody alloc] initWithText:
 | `custom.caf`     | 铃声的音频文件名称。 |
 
 包含自定义铃声的消息的结构如下：
-
-```json
-{
-  "payload": {
-    "ext": {
-      "em_apns_ext": {
-        "em_push_sound":"custom.caf"
-      }
-    }
-  }
-}
-```
 
 ```json
 {

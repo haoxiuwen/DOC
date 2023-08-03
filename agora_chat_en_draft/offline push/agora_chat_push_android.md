@@ -2,13 +2,13 @@
 
 即时通讯 IM 支持集成 FCM 消息推送服务，为 Android 开发者提供低延时、高送达、高并发、不侵犯用户个人数据的离线消息推送服务。
 
-客户端断开连接或应用进程被关闭等原因导致用户离线时，即时通讯 IM 会通过 FCM 消息推送服务向该离线用户的设备推送消息通知。当用户再次上线时，服务器会将离线期间的消息发送给用户。若应用在后台运行，则用户仍为在线状态，即时通讯 IM 不会向用户推送消息通知。
+客户端断开连接或应用进程被关闭等原因导致用户离线时，即时通讯 IM 会通过 FCM 消息推送服务向该离线用户的设备推送消息通知。当用户再次上线时，服务器会将离线期间的消息发送给用户。若应用在后台运行，则用户仍为在线状态，即时通讯 IM 不会向用户推送消息通知。多设备登录时，可在声网控制台的 **Push Certificate** 页面配置推送在所有设备离线或任一设备离线时发送推送消息，该配置对所有推送通道生效。
 
 <div class="alert note">1. 应用在后台运行或手机锁屏等情况，若客户端未断开与声网服务器的连接，则即时通讯 IM 不会收到离线推送通知。<br/>2. 多端登录时若有设备被踢下线，即使接入了 IM 离线推送，也收不到离线推送消息。</div>
 
 除了满足用户离线条件外，要使用 FCM 离线推送，用户还需声网控制台配置 FCM 推送证书信息，例如 **Private Key** 和 **Certificate Name**，并向声网即时通讯服务器上传 device token。
 
-本文介绍如何在客户端应用中实现 FCM 推送服务。 
+本文介绍如何在客户端应用中实现 FCM 推送服务。  
 
 ## 技术原理
 
@@ -27,6 +27,7 @@
 9. FCM 推送服务器将消息发送给用户 B。
 
 <div class="alert info">device token 是 FCM 推送提供的推送 token，即初次启动你的应用时，FCM SDK 为客户端应用实例生成的注册令牌 (registration token)。该 token 用于标识每台设备上的每个应用，FCM 通过该 token 明确消息是发送给哪个设备的，然后将消息转发给设备，设备再通知应用程序。你可以调用 FirebaseMessaging.getInstance().getToken() 方法获得 token。另外，如果退出即时通讯 IM 登录时不解绑 device token（调用 `logout` 方法时对 `unbindToken` 参数传 `false` 时不解绑 device token，传 `true` 表示解绑 token），用户在推送证书有效期和 token 有效期内仍会接收到离线推送通知。</div>
+
 ## 前提条件
 
 - 已开启即时通讯 IM ，详见[开启和配置即时通讯服务](./enable_agora_chat)。
@@ -60,9 +61,10 @@
 
   [img](fcm_private-key)
 
-### 在声网控制台配置 FCM 推送
+### 在声网控制台上传 FCM 推送证书
 
-登录即时通讯 IM SDK 成功后，可在声网控制台配置多设备登录场景下的推送策略以及上传 FCM 推送证书。
+登录即时通讯 IM SDK 成功后，可在声网控制台上传 FCM 推送证书。
+
 1. 登录[声网控制台](https://console.agora.io/)，在左侧导航栏中单击 **Project Management**。
 2. 在 **Project Management** 页面上，在启用了即时通讯 IM 的项目的 **Action** 一栏中单击 **Config**。
 3. 在 **Edit Project** 页面的 **Features** 区域，单击 **Chat** 对应的 **Enable/Config**。
@@ -70,15 +72,7 @@
 
 ![image](push_multidevice_policy.png)
 
-**配置多设备登录时的推送策略**
-
-在 **Push Certificate** 页面，配置多设备登录场景下的推送策略：
-- 所有设备离线时，才发送推送消息。
-- 任一设备离线时，都发送推送消息。
-
-**上传 FCM 证书**
-
-在 **Push Certificate** 页面，单击 **Add Push Certificate**。在弹出的对话框中，选择 **Google** 页签，配置字段，单击**保存**。
+5. 在 **Push Certificate** 页面，单击 **Add Push Certificate**。在弹出的对话框中，选择 **Google** 页签，配置字段，单击**保存**。
 
 [img](push_fcm_add_certificate.png)
 
@@ -269,11 +263,13 @@ public void onNewToken(@NonNull String token) {
 
 **推送通知方式**
 
-| 推送通知方式参数     | 描述   | 应用范围   |
-| :------- | :----- | :----- |
-| `ALL` | 接收所有离线消息的推送通知。 | App 和单聊/群聊会话 |
-| `MENTION_ONLY` | 仅接收提及消息的推送通知。<br/>该参数推荐在群聊中使用。若提及一个或多个用户，需在创建消息时对 `ext` 字段传 "em_at_list":["user1", "user2" ...]；若提及所有人，对该字段传 "em_at_list":"all"。 | App 和单聊/群聊会话 |
-| `NONE`   | 不接收离线消息的推送通知。 | App 和单聊/群聊会话      |
+推送通知方式参数的说明如下表所示：
+
+| 参数     | 描述   | App  | 会话  |
+| :------- | :----- | :----- | :----- |
+| `ALL` | 接收所有离线消息的推送通知。 | ✓ | ✓ |
+| `MENTION_ONLY` | 仅接收提及消息的推送通知。<br/>该参数推荐在群聊中使用。若提及一个或多个用户，需在创建消息时对 `ext` 字段传 "em_at_list":["user1", "user2" ...]；若提及所有人，对该字段传 "em_at_list":"all"。 | ✓ | ✓ |
+| `NONE`   | 不接收离线消息的推送通知。 | ✓     | ✓ |
 
 会话级别的推送通知方式设置优先于 app 级别的设置，未设置推送通知方式的会话默认采用 app 的设置。
 
@@ -285,10 +281,10 @@ public void onNewToken(@NonNull String token) {
 
 免打扰时间参数的说明如下表所示：
 
-| 免打扰时间参数     |  描述   |   应用范围 |
-| :--------| :----- | :----------------------------------------------------------- |
-| `SILENT_MODE_INTERVAL` | 免打扰时间段，精确到分钟，格式为 HH:MM-HH:MM，例如 08:30-10:00。该时间为 24 小时制，免打扰时间段的开始时间和结束时间中的小时数和分钟数的取值范围分别为 [00,23] 和 [00,59]。免打扰时间段的设置说明如下：<ul><li>开始时间和结束时间的设置立即生效，免打扰模式每天定时触发。例如，开始时间为 `08:00`，结束时间为 `10:00`，免打扰模式在每天的 8:00-10:00 内生效。若你在 11:00 设置开始时间为 `08:00`，结束时间为 `12:00`，则免打扰模式在当天的 11:00-12:00 生效，以后每天均在 8:00-12:00 生效。</li><li>若开始时间和结束时间相同，免打扰模式则全天生效。</li><li>若结束时间早于开始时间，则免打扰模式在每天的开始时间到次日的结束时间内生效。例如，开始时间为 `10:00`，结束时间为 `08:00`，则免打扰模式的在当天的 10:00 到次日的 8:00 生效。</li><li>目前仅支持在每天的一个指定时间段内开启免打扰模式，不支持多个免打扰时间段，新的设置会覆盖之前的设置。</li><li>若不设置该参数，开始时间和结束时间分别传 `00`。</li></ul> | 仅用于 app 级别，对单聊或群聊会话不生效。 |
-| `SILENT_MODE_DURATION`|  免打扰时长，单位为毫秒。免打扰时长的取值范围为 [0,604800000]，`0` 表示该参数无效，`604800000` 表示免打扰模式持续 7 天。<br/> 与免打扰时间段的设置长久有效不同，该参数为一次有效。    | App 或单聊/群聊会话。  |
+| 参数     |  描述   |   App  | 会话  |
+| :--------| :----- | :------------------- | :----- |
+| `SILENT_MODE_INTERVAL` | 免打扰时间段，精确到分钟，格式为 HH:MM-HH:MM，例如 08:30-10:00。该时间为 24 小时制，免打扰时间段的开始时间和结束时间中的小时数和分钟数的取值范围分别为 [00,23] 和 [00,59]。免打扰时间段的设置说明如下：<ul><li>开始时间和结束时间的设置立即生效，免打扰模式每天定时触发。例如，开始时间为 `08:00`，结束时间为 `10:00`，免打扰模式在每天的 8:00-10:00 内生效。若你在 11:00 设置开始时间为 `08:00`，结束时间为 `12:00`，则免打扰模式在当天的 11:00-12:00 生效，以后每天均在 8:00-12:00 生效。</li><li>若开始时间和结束时间相同，免打扰模式则全天生效。</li><li>若结束时间早于开始时间，则免打扰模式在每天的开始时间到次日的结束时间内生效。例如，开始时间为 `10:00`，结束时间为 `08:00`，则免打扰模式的在当天的 10:00 到次日的 8:00 生效。</li><li>目前仅支持在每天的一个指定时间段内开启免打扰模式，不支持多个免打扰时间段，新的设置会覆盖之前的设置。</li><li>若不设置该参数，开始时间和结束时间分别传 `00`。</li></ul> | ✓ | ✗ |
+| `SILENT_MODE_DURATION`| 免打扰时长，单位为毫秒。免打扰时长的取值范围为 [0,604800000]，`0` 表示该参数无效，`604800000` 表示免打扰模式持续 7 天。<br/> 与免打扰时间段的设置长久有效不同，该参数为一次有效。    | ✓     | ✓ |
 
 若在免打扰时段或时长生效期间需要对指定用户推送消息，需设置[强制推送](#forced)。
 
@@ -300,7 +296,7 @@ public void onNewToken(@NonNull String token) {
 
 ### 设置 app 的推送通知
 
-你可以调用 `setSilentModeForAll` 设置 app 级别的推送通知，并通过指定 `SilentModeParam` 字段设置推送通知方式和免打扰模式，如下代码示例所示：
+你可以调用 `setSilentModeForAll` 方法设置 app 级别的推送通知，并通过指定 `SilentModeParam` 字段设置推送通知方式和免打扰模式，如下代码示例所示：
 
 ```java       
 //设置推送通知方式为 `MENTION_ONLY`。
@@ -318,7 +314,7 @@ ChatClient.getInstance().pushManager().setSilentModeForAll(param, new ValueCallB
 
 ### 获取 app 的推送通知设置
 
-你可以调用 `getSilentModeForAll` 获取 app 级别的推送通知设置，如以下代码示例所示：
+你可以调用 `getSilentModeForAll` 方法获取 app 级别的推送通知设置，如以下代码示例所示：
 
 ```java
 ChatClient.getInstance().pushManager().getSilentModeForAll(new ValueCallBack<SilentModeResult>(){
@@ -463,7 +459,7 @@ String nickname = pushConfigs.getDisplayNickname();
 PushManager.DisplayStyle style = pushConfigs.getDisplayStyle();
 ```
 
-## 设置离线推送的首选语言 
+## 设置推送翻译 
 
 推送通知与翻译功能协同工作。如果用户启用[自动翻译](./agora_chat_translation_android)功能并发送消息，SDK 会同时发送原始消息和翻译后的消息。
 
@@ -481,7 +477,9 @@ ChatClient.getInstance().pushManager().getPreferredNotificationLanguage(new Valu
 
 ## 设置推送模板
 
-即时通讯 IM 支持自定义推送通知模板。使用前，你需要调用 RESTful 接口或参考以下步骤在声网控制台创建推送模板：
+即时通讯 IM 支持自定义推送通知模板。使用前，你需要[调用 RESTful 接口](./agora_chat_restful_push#set-up-push-templates)或在声网控制台创建推送模板。
+
+本节介绍如何在声网控制台创建推送模板，然后再发送消息时选择使用此模板。
 
 1. 登录[声网控制台](https://console.agora.io/)，在左侧导航栏中单击 **Project Management**。
 2. 在 **Project Management** 页面上，在启用了即时通讯 IM 的项目的 **Action** 一栏中单击 **Config**。
@@ -492,13 +490,15 @@ ChatClient.getInstance().pushManager().getPreferredNotificationLanguage(new Valu
 
 5. 创建推送模板后，用户可以在发送消息时选择使用此模板，代码示例如下所示。
 
+<div class="alert note">创建模板时，模板名称若输入 `default`，则为默认模板，使用时无需传入模板名称和模板中的设置。若使用自定义模板，则需要在创建消息时通过扩展字段传入模板名称、推送标题和推送内容的设置。</div>
+
 ```java
 // 下面以文本消息为例，其他类型的消息设置方法相同。
 ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
 TextMessageBody txtBody = new TextMessageBody("message content");
 // 设置推送通知接收方。单聊为接收方的用户 ID，群聊为群组 ID。
 message.setTo("receiver");  
-// 将在声网控制台上或调用 RESTful 接口创建的推送模板设置为默认推送模板。
+// 使用推送模板。
 JSONObject pushObject = new JSONObject();
 JSONArray titleArgs = new JSONArray();
 JSONArray contentArgs = new JSONArray();
@@ -615,7 +615,9 @@ message.setAttribute("em_apns_ext", extObject);
 | `em_apns_ext`    | 消息扩展字段。该字段名固定，不可修改。     |
 | `test1`          | 用户添加的自定义 key。  |
 
-### 设置 FCM 通知栏折叠
+### 设置通知栏折叠
+
+你可以将通知栏中的多条消息折叠起来，示例代码如下：
 
 ```java
 // 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
@@ -631,7 +633,7 @@ try {
 message.setAttribute("em_apns_ext", extObject);
 ```
 
-包含FCM 通知栏折叠字段的消息的数据结构如下：
+包含 FCM 通知栏折叠字段的消息的数据结构如下：
 
 ```json
 {
@@ -649,7 +651,7 @@ message.setAttribute("em_apns_ext", extObject);
 
 创建推送消息时，你可以设置消息扩展字段自定义要显示的推送内容。
 
-对于推送通知的显示属性，即推送昵称和推送通知显示样式，除了[调用具体方法设置](#display)，你还可以通过自定义字段设置。若你同时采用了这两种方法，设置的自定义字段优先级较高。
+对于推送通知的标题和内容，除了[调用具体方法设置](#display)推送昵称和推送通知显示样式，你还可以通过自定义字段设置。若你同时采用了这两种方法，设置的自定义字段优先级较高。
 
 ```java
 // 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
@@ -697,6 +699,6 @@ message.setAttribute("em_force_notification", true);
 ```java
 // 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
 ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
-// 设置自定义扩展字段。该字段为内置内置字段，取值如下：`true`：发送静默消息；（默认）`false`：推送该消息。
+// 设置是否发送静默消息。该字段为内置内置字段，取值如下：`true`：发送静默消息；（默认）`false`：推送该消息。
 message.setAttribute("em_ignore_notification", true);
 ```
