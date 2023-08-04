@@ -8,7 +8,7 @@
 
 除了满足用户离线条件外，要使用 FCM 离线推送，用户还需声网控制台配置 FCM 推送证书信息，例如 **Private Key** 和 **Certificate Name**，并向声网即时通讯服务器上传 device token。
 
-要体验离线推送的 demo，请点击[这里](https://github.com/AgoraIO/Agora-Chat-API-Examples/tree/main/Chat-RN/firebase_push_demo)。
+你可以点击[这里](https://github.com/AgoraIO/Agora-Chat-API-Examples/tree/main/Chat-RN/firebase_push_demo)参考离线推送 demo 源码。
 
 ## 推送流程
 
