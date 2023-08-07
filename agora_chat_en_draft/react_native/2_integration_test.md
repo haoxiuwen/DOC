@@ -70,7 +70,7 @@ apply plugin: 'com.google.gms.google-services' // <- Add this line
    [FIRApp configure];}
    ```
 
-3. 在 **Project settings** 页面的 **Cloud Messaging** 选项卡下，选择该应用，添加 [APNs 身份验证密钥](https://developer.apple.com/help/account/manage-keys/create-a-private-key)或者[证书](https://developer.apple.com/help/account/create-certificates/certificates-overview)。//TODO 小明确认
+3. 在 **Project settings** 页面的 **Cloud Messaging** 选项卡下，选择该应用，添加 [APNs 身份验证密钥](https://developer.apple.com/help/account/manage-keys/create-a-private-key)或者[证书](https://developer.apple.com/help/account/create-certificates/certificates-overview)。
 
 4. 查询 **Sender ID** 和生成密钥（JSON 文件），与 Android 应用相同。
 
