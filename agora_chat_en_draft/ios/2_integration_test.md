@@ -22,7 +22,9 @@ APNs 支持 p8 和 p12 证书。声网服务端需要具备你的 APNs 证书才
 
 1. 在设备上打开 **Keychain Access** 应用，选择 **Keychain Access** > **Certificate Assistant** > **Request a Certificate from a Certificate Authority**。
 2. 在 **Certificate Assistant** 对话框中填写 **User Email Address**（电子邮件地址）和 **Common Name**（常用名称），对 **Request is** 选择 **Saved to disk**，点击 **Continue**，添加存储路径保存文件。
-   ![](https://web-cdn.agora.io/docs-files/1642564150801)
+
+   ![](push_apns_ca.png)
+
 3. 该存储路径下生成了 CSR 文件 `CertificateSigningRequest.certSigningRequest`。
 
 #### 步骤 2 创建 App ID<a name="step1-2"></a>
