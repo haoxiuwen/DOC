@@ -59,7 +59,7 @@
 
 ## 参考 
 
-SDK 的相关功能
+SDK 的相关功能链接
 
 （Web）UIKit 的 API Reference
 
