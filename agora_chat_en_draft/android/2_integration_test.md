@@ -113,7 +113,7 @@ public class FCMMSGService extends FirebaseMessagingService {
 
 ```xml
 <service
-    android:name=".java.MyFirebaseMessagingService"
+    android:name=".FCMMSGService"
     android:exported="false">
     <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -151,9 +151,9 @@ PushHelper.getInstance().setPushListener(new PushListener() {
 });
 ```
 
-4. 将 FCM 的 device token 传递给即时通讯 IM SDK。
+4. 将 FCM 的 device token 传递给服务器。
 
-在应用初始化时，FCM SDK 会为用户的设备上的客户端应用生成唯一的注册 token。由于 FCM 使用该 token 确定要将推送消息发送给哪个设备，因此，声网服务器需要获得客户端应用的注册 token 才能将通知请求发送给 FCM，然后 FCM 验证注册 token，将通知消息发送给 Android 设备。
+在应用初始化时，FCM SDK 会为用户的设备上的客户端应用生成唯一的注册 token。由于 FCM 使用该 token 确定要将推送消息发送给哪个设备，因此，声网服务器需要获得客户端应用的注册 token 才能将通知请求发送给 FCM，然后 FCM 验证注册 token，将通知消息发送给 Android 设备。建议该段代码放在成功登录即时通讯 IM 后的主页面。
 
 ```java
 // 检查是否启用了 FCM。
@@ -208,10 +208,14 @@ public void onNewToken(@NonNull String token) {
 ### 测试步骤
 
 1. 在设备上登录应用，并确认 device token 绑定成功。
+   可以查看日志或调用[获取用户详情的 RESTful 接口](https://docs.agora.io/en/agora-chat/restful-api/user-system-registration#querying-a-user)确认 device token 是否绑定成功。
 2. 开启应用通知栏权限。
 3. 杀掉应用进程。
 4. 在声网控制台发送测试消息。
-   在左侧导航栏中选择 **Operation Management** > **User**。在用户管理页面中，在对应用户 ID 的 **Action** 栏中选择 **Send Admin Message**。在弹出的对话框中选择消息类型，输入消息内容，然后点击 **Send**。
+   在左侧导航栏中选择 **Operation Management** > **User**。在 Users 页面中，在对应用户 ID 的 **Action** 栏中选择 **Send Admin Message**。在弹出的对话框中选择消息类型，输入消息内容，然后点击 **Send**。
+
+   <div class="alert note">在 **Push Certificate** 页面中证书列表中，在每个证书的 **Action** 一栏中，点击 **More**，会出现 **Test**，这里是直接调用第三方接口推送，而 **Users** 页面中的消息发送测试是先调用即时通讯 IM 的发消息的接口，满足条件后（即用户离线、推送证书有效且绑定了 device token）再调第三方的接口进行推送。</div>
+
 5. 查看设备是否收到推送通知。
 
 ### 故障排除

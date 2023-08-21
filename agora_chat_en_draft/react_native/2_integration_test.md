@@ -263,10 +263,14 @@ ChatClient.getInstance()
 ### 测试步骤
 
 1. 在设备上登录应用，并确认 device token 绑定成功。
+   可以查看日志或调用[获取用户详情的 RESTful 接口](https://docs.agora.io/en/agora-chat/restful-api/user-system-registration#querying-a-user)确认 device token 是否绑定成功。
 2. 开启应用通知栏权限。
 3. 杀掉应用进程。
 4. 在声网控制台发送测试消息。
-   在左侧导航栏中选择 **Operation Management** > **User**。在用户管理页面中，在对应用户 ID 的 **Action** 栏中选择 **Send Admin Message**。在弹出的对话框中选择消息类型，输入消息内容，然后点击 **Send**。
+   在左侧导航栏中选择 **Operation Management** > **User**。在 Users 页面中，在对应用户 ID 的 **Action** 栏中选择 **Send Admin Message**。在弹出的对话框中选择消息类型，输入消息内容，然后点击 **Send**。
+
+   <div class="alert note">在 **Push Certificate** 页面中证书列表中，在每个证书的 **Action** 一栏中，点击 **More**，会出现 **Test**，这里是直接调用第三方接口推送，而 **Users** 页面中的消息发送测试是先调用即时通讯 IM 的发消息的接口，满足条件后（即用户离线、推送证书有效且绑定了 device token）再调第三方的接口进行推送。</div>
+
 5. 查看设备是否收到推送通知。
 
 ### 故障排除
