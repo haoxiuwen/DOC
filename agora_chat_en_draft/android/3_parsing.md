@@ -17,6 +17,22 @@ public class FCMMSGService extends FirebaseMessagingService {
             Object e = remoteMessage.getData().get("e");
         }
     }
+
+    @Override
+    public void handleIntent(@NonNull Intent intent) {
+        super.handleIntent(intent);
+        Bundle bundle = intent.getExtras();
+        if (bundle != null) {
+            Map<String, Object> map = new HashMap<>();
+            for (String key : bundle.keySet()) {
+                if (!TextUtils.isEmpty(key)) {
+                Object content = bundle.get(key);
+                map.put(key, content);
+                }
+            }
+            Log.i(TAG, "handleIntent: " + map);
+        }
+   }
 }
 ```
 
