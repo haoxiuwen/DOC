@@ -40,6 +40,7 @@ PushManager.DisplayStyle style = pushConfigs.getDisplayStyle();
 下表以单聊文本消息为例介绍这显示属性的设置。
 
 <div class="alert info">对于群聊，下表中的“消息发送方的推送昵称”和“消息发送方的 IM 用户 ID”显示为“群组 ID”。</div>
+
 | 参数设置      | 推送显示 | 图片    |
 | :--------- | :----- |:------------- |
 | <ul><li>`DisplayStyle`：（默认）`SimpleBanner`</li><li>`nickname`：设置或不设置</li></ul>  | <ul><li>推送标题：“您有一条新消息”</li><li>推送内容：“请点击查看”</li></ul>   | push_displayattribute_1.png      |
