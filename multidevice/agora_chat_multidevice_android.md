@@ -254,13 +254,16 @@ private class ChatMultiDeviceListener implements MultiDeviceListener {
         EMLog.i(TAG, "onConversationEvent event"+event);
         switch (event) {
             case CONVERSATION_PINNED:
-                //当前用户在其他设备上给某个会话置顶。
+                //当前用户在其他设备上对某个会话置顶。
                 break;
             case CONVERSATION_UNPINNED:
-                //当前用户在其他设备上给某个会话取消置顶。
+                //当前用户在其他设备上对某个会话取消置顶。
                 break;
             case CONVERSATION_DELETED:
                 //当前用户在其他设备上删除某个会话。
+                break;
+            case CONVERSATION_MARK_UPDATE:
+                //当前用户在其他设备上更新了会话标记，包括添加和移除会话标记。
                 break;
             default:
                 break;

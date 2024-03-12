@@ -253,6 +253,8 @@ extension AppDelegate: AgoraChatMultiDevicesDelegate {
         case .conversationDelete:
             //当前用户在其他设备上删除某个会话。
             break
+            //当前用户在其他设备上更新了会话标记，包括添加和移除会话标记。
+        case .conversationUpdateMark:
         default:
             break
         }
