@@ -46,11 +46,36 @@
 | :--------- | :----- | :------- | :----------------------- |
 | **Certificate Type**     |  | 否  | 选择使用旧版证书还是 V1 证书。<ul><li>**V1**： 你需要配置 **Private Key**。推荐使用 V1 证书。</li><li>**Old Version**：你需要配置 **Push Key**。老版本证书即将被弃用。</li></ul>|
 | **Private Key**     | file | 是       | 点击 **Upload** 上传推送证书文件（.json）。你需要在 Firebase 控制台的 **Project settings** > **Service accounts** 页面点击 **Generate new private key** 生成的推送证书文件（.json）。 |
-| **Push Key** | String | 是       | FCM 的服务器密钥（Server Key）。 你需在 Firebase 控制台的 **Project settings** > **Cloud Messaging** 页面，在 **Cloud Messaging API (Legacy)** 区域中获取服务器密钥。|
+| **Push Key** | String | 是       | FCM 的服务器密钥（Server Key）。 你需在 Firebase 控制台的 **Project settings** > **Cloud Messaging** 页面，在 **Cloud Messaging API (Legacy)** 区域中获取服务器密钥。**该参数仅对旧版本证书有效。**|
 | **Certificate Name** | String | 是       | 配置为 FCM 的发送者 ID。你可以在 FCM 控制台的 **Project settings** > **Cloud Messaging** 页面查看 **Sender ID** 参数的值。<br/> 证书名称是声网即时通讯服务器用于判断目标设备使用哪种推送通道的唯一条件，因此必须确保你[在即时通讯 IM 中集成 FCM 时设置的 Sender ID](#initialization)与这里设置的一致。 |
 | **Sound** | String | 否       | 接收方收到推送通知时的铃声标记。|
 | **Push Priority** |  | 否       | 消息传递优先级，详见 [FCM 官网](https://firebase.google.cn/docs/cloud-messaging/concept-options#setting-the-priority-of-a-message)。 |
 | **Push Msg Type** |  | 否       | 通过 FCM 向客户端发送的消息的类型，详见 [FCM 消息简介](https://firebase.google.cn/docs/cloud-messaging/concept-options#notifications_and_data_messages) 。<ul><li>**Data**：数据消息，由客户端应用处理。</li><li>**Notification**：通知消息，由 FCM SDK 自动处理。</li><li>**Both**：可以通过 FCM 客户端发送通知消息和数据消息。</li></ul>|
+
+#### **旧版证书无缝切换至 V1 证书**
+
+若你仍使用旧版证书，即 **Certificate Type** 选择 **Old Version**，你需要将 **Certificate Name** 设置为 FCM 的发送者 ID，**Push Key** 设置为 FCM 的服务器密钥。你需在 [Firebase 控制台](https://console.firebase.google.com)的 ***Project settings > Cloud Messaging** 页面中，在 **Cloud Messaging API (Legacy)** 区域中获取发送者 ID 和服务器密钥，如下图所示。配置完毕，设置 **Sound**、**Push Priority** 和 **Push Msg Type** 参数。
+
+![image](@static/images/android/push/fcm_old_version.png)
+
+**旧版 HTTP 或 XMPP API 于 2024 年 6 月 20 日停用，请尽快迁移到最新的 FCM API（HTTP v1）版本证书。详见 [FCM 控制台](https://console.firebase.google.com)。请确保 V1 证书可用，因为执行转换证书后，旧证书会被删除，若此时新证书不可用，会导致推送失败。**
+
+你可以参考以下步骤从旧版证书无缝切换到 V1 新证书：
+
+1. 在 **Push Certificate** 页面的旧版证书的 **Action** 栏中点击 **Edit**。
+
+![image](@static/images/android/push/hxconsoleedit.png)
+
+2. 在**Edit Push Certificate** 窗口的 **Google** 页签，将**Certificate Type**切换为 **V1**。
+
+![fcmapp](@static/images/android/push/old2V1.png)
+
+3. 点击 **Upload** 上传本地保存的 V1 证书文件（.json）。
+
+![fcmapp](@static/images/android/push/v1Chosefile.png)
+
+4. 点击 **OK** 完成切换。
+
 
 ### 在客户端集成 FCM
 
