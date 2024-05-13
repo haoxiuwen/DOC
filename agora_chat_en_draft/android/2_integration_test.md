@@ -64,15 +64,15 @@
 
 1. 在 **Push Certificate** 页面的旧版证书的 **Action** 栏中点击 **Edit**。
 
-![image](@static/images/android/push/hxconsoleedit.png)
+![image](push_fcm_oldcertificate_edit.png)
 
 2. 在**Edit Push Certificate** 窗口的 **Google** 页签，将**Certificate Type**切换为 **V1**。
 
-![fcmapp](@static/images/android/push/old2V1.png)
+![image](push_fcm_oldcertificate_switch.png)
 
 3. 点击 **Upload** 上传本地保存的 V1 证书文件（.json）。
 
-![fcmapp](@static/images/android/push/v1Chosefile.png)
+![fcmapp](push_fcm_newcertificate_upload.png)
 
 4. 点击 **OK** 完成切换。
 
