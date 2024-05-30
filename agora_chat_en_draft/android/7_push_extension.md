@@ -9,31 +9,39 @@
 ```java
 // 本示例以文本消息为例，图片和文件等消息类型的设置方法相同。
 ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
-// 设置自定义推送字段。
-JSONObject extObject = new JSONObject();
-try {
-    extObject.put("test1", "test 01"); 
-} catch (JSONException e) {
-    e.printStackTrace();
-}
+// 设置自定义推送扩展。
+JSONObject emPushExt = new JSONObject() {
+   {
+        put("custom", new JSONObject() {
+            {
+                put("key1", "value1");
+                put("key2", "value2");
+            }
+        });
+    }
+};
 // 将推送扩展设置到消息中。
-message.setAttribute("em_apns_ext", extObject);
+message.setAttribute("em_push_ext", emPushExt);
 ```
 
 自定义字段的数据结构如下：
 
 ```json
 {
-    "em_apns_ext": {
-        "test1": "test 01"
+    "em_push_ext": {
+        "custom": {
+            "key1": "value1",
+            "key2": "value2"
+        }
     }
 }
 ```
 
 | 参数             | 描述               |
 | :--------------- | :----------------- |
-| `em_apns_ext`    | 内置的推送扩展字段。 |
-| `test1`          | 用户添加的自定义 key，可添加多个。  |
+| `em_push_ext`    | Agora 消息推送扩展固定值，不可修改。 |
+| `custom`         | 消息扩展，使用扩展的方式向推送中添加自定义字段，该值为固定值。 |
+| `key1`/`key2`    | 自定义消息推送扩展的具体内容。 |
 
 ## 设置某些群成员收到推送通知
 

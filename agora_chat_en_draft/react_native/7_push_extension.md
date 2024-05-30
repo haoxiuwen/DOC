@@ -9,9 +9,12 @@
 ```typescript
 msg.attributes = {
   // 消息扩展字段。
-  em_apns_ext: {
-    test1: "foo", 
-  },
+   "em_push_ext": {
+        "custom": {
+            "key1": "value1",
+            "key2": "value2"
+        }
+    },
 };
 ```
 
@@ -19,16 +22,20 @@ msg.attributes = {
 
 ```json
 {
-    "em_apns_ext": {
-        "test1": "test 01"
+    "em_push_ext": {
+        "custom": {
+            "key1": "value1",
+            "key2": "value2"
+        }
     }
 }
 ```
 
 | 参数             | 描述               |
 | :--------------- | :----------------- |
-| `em_apns_ext`    | 内置的消息扩展字段。 |
-| `test1`          | 用户添加的自定义 key，可添加多个。  |
+| `em_push_ext`    | Agora 消息推送扩展固定值，不可修改。 |
+| `custom`         | 消息扩展，使用扩展的方式向推送中添加自定义字段，该值为固定值。 |
+| `key1`/`key2`    | 自定义消息推送扩展的具体内容。 |
 
 ## 设置某些群成员收到推送通知
 

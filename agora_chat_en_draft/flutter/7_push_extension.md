@@ -14,10 +14,12 @@ ChatMessage msg = ChatMessage.createTxtSendMessage(
 );
 msg.attributes = {
   // 将推送扩展设置到消息中。
-  'em_apns_ext': {
-    // 自定义 k-v
-    "extern": {'customKey': 'customValue'},
-  }
+  "em_push_ext": {
+        "custom": {
+            "key1": "value1",
+            "key2": "value2"
+        }
+    }
 };
 
 try {
@@ -30,16 +32,20 @@ try {
 
 ```json
 {
-    "em_apns_ext": {
-        "extern": {"customKey": "customValue"}
+    "em_push_ext": {
+        "custom": {
+            "key1": "value1",
+            "key2": "value2"
+        }
     }
 }
 ```
 
 | 参数             | 描述               |
 | :--------------- | :----------------- |
-| `em_apns_ext`    | 内置的推送扩展字段。 |
-| `extern`          | 用户添加的自定义 key，可添加多个。  |
+| `em_push_ext`    | Agora 消息推送扩展固定值，不可修改。 |
+| `custom`         | 消息扩展，使用扩展的方式向推送中添加自定义字段，该值为固定值。 |
+| `key1`/`key2`    | 自定义消息推送扩展的具体内容。 |
 
 ## 设置某些群成员收到推送通知
 

@@ -80,8 +80,8 @@ ChatMessage message = ChatMessage.createSendMessage(ChatMessage.Type.TXT);
 // 设置自定义推送显示。
 JSONObject extObject = new JSONObject();
 try {
-    extObject.put("em_push_title", "custom push title"); // 自定义推送消息标题。该字段为内置内置字段，字段名不可修改。 
-    extObject.put("em_push_content", "custom push content"); // 自定义推送消息内容。该字段为内置内置字段，字段名不可修改。
+    extObject.put("em_push_title", "custom push title"); // 自定义推送消息标题。该字段为内置字段，字段名不可修改。 
+    extObject.put("em_push_content", "custom push content"); // 自定义推送消息内容。该字段为内置字段，字段名不可修改。
 } catch (JSONException e) {
     e.printStackTrace();
 }
