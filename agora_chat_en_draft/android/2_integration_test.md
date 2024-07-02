@@ -229,7 +229,7 @@ public void onNewToken(@NonNull String token) {
 ### 测试步骤
 
 1. 在设备上登录应用，并确认 device token 绑定成功。
-   可以查看日志或调用[获取用户详情的 RESTful 接口](https://docs.agora.io/en/agora-chat/restful-api/user-system-registration#querying-a-user)确认 device token 是否绑定成功。
+   可以查看日志或调用[获取用户详情的 RESTful 接口](https://docs.agora.io/en/agora-chat/restful-api/user-system-registration#querying-a-user)确认 device token 是否绑定成功。成功后在 `entities` 字段下会有 `pushInfo` 字段，且 `pushInfo` 下会有 `device_Id`、`device_token`、`notifier_name` 等相关信息
 2. 开启应用通知栏权限。
 3. 杀掉应用进程。
 4. 在声网控制台发送测试消息。
