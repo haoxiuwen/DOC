@@ -4,6 +4,10 @@
 
 ## 集成 FCM 推送
 
+Note: Currently, the official Chat website shows the latest configuration on the Firebase Console and Agora Console. 
+Therefore, you can ignore this part enclosed by "///////////////" during translation. 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 按以下步骤在即时通讯 IM 中集成 FCM：
 
 1. 在 [Firebase 控制台](https://console.firebase.google.com/)创建 Android 项目。
@@ -53,6 +57,8 @@
 | **Sound** | String | 否       | 接收方收到推送通知时的铃声标记。|
 | **Push Priority** |  | 否       | 消息传递优先级，详见 [FCM 官网](https://firebase.google.cn/docs/cloud-messaging/concept-options#setting-the-priority-of-a-message)。 |
 | **Push Msg Type** |  | 否       | 通过 FCM 向客户端发送的消息的类型，详见 [FCM 消息简介](https://firebase.google.cn/docs/cloud-messaging/concept-options#notifications_and_data_messages) 。<ul><li>**Data**：数据消息，由客户端应用处理。</li><li>**Notification**：通知消息，由 FCM SDK 自动处理。</li><li>**Both**：可以通过 FCM 客户端发送通知消息和数据消息。</li></ul>|
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ### 在客户端配置 FCM
 

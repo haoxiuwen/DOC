@@ -4,6 +4,9 @@
 
 ## 集成 FCM 推送
 
+Note: Currently, the official Chat website shows the latest configuration on the Firebase Console and Agora Console. 
+Therefore, you can ignore this part enclosed by "///////////////" during translation. 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 按以下步骤在即时通讯 IM 中集成 FCM：
 
 1. 在 [Firebase 控制台](https://console.firebase.google.com/)创建 Android 项目。
@@ -11,6 +14,7 @@
 3. 在客户端集成 FCM。
 
 <div class="alert info">对于使用 Android 系统的设备，若同时开启了 FCM 和其他厂商的推送服务，优先使用 FCM 推送服务。</div>
+
 
 ### 在 Firebase 控制台创建 Android 项目
 
@@ -72,6 +76,7 @@
 
 4. 点击 **OK** 完成切换。
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ### 在客户端集成 FCM
 
