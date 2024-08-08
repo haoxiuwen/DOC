@@ -42,7 +42,7 @@ AgoraChatTextMessageBody* body = [[AgoraChatTextMessageBody alloc] initWithText:
     msg.ext = @{@"em_apns_ext":@{@"em_at_list":@"All"}};
     //推送给指定群成员,设置为成员列表。
     msg.ext = @{@"em_apns_ext":@{@"em_at_list":@[@"userId1",@"userId2"]}};
-    message.chatType = EMChatTypeGroupChat;
+    message.chatType = AgoraChatTypeGroupChat;
     [AgoraChatClient.sharedClient.chatManager sendMessage:msg progress:nil completion:nil];
 ```
 
