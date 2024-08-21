@@ -12,9 +12,9 @@
 
 ```javascript
 const params = {
-        deviceId: WebIM.conn.clientResource, // 设备 ID，用于标识设备。
-        deviceToken: 'deviceToken', // 推送 token，用于标识每台设备上的每个应用。
-        notifierName: 'PUSH_CERT_NAME', // 推送服务的证书名称。
+     deviceId: WebIM.conn.clientResource, // 设备 ID，用于标识设备。
+     deviceToken: 'deviceToken', // 推送 token，用于标识每台设备上的每个应用。
+     notifierName: 'PUSH_CERT_NAME', // 推送服务的证书名称。
 };
 
 WebIM.conn.uploadPushToken(params);
