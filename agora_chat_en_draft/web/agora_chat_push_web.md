@@ -1,6 +1,6 @@
 # 离线推送概述
 
-即时通讯 IM 支持集成离线推送服务，为开发者提供低延时、高送达、高并发、不侵犯用户个人数据的离线消息推送服务。
+即时通讯 IM 支持集成离线推送服务，为开发者提供低延时、高送达、高并发、不侵犯用户个人数据的离线消息推送服务。**即时通讯 IM Web SDK 本身不支持离线推送，但支持移动平台的离线推送配置。**
 
 客户端断开连接或应用进程被关闭等原因导致用户离线时，即时通讯 IM 会通过 FCM 消息推送服务向该离线用户的设备推送消息通知。当用户再次上线时，服务器会将离线期间的消息发送给用户（这里角标表示的是离线消息数，并不是实际的未读消息数）。
 
@@ -10,7 +10,15 @@
 
 除了满足用户离线条件外，要使用第三方离线推送，用户还需声网控制台配置推送证书信息，例如对于 FCM 推送，需配置 **Private Key** 和 **Certificate Name**，并调用 `uploadPushToken` 方法向声网即时通讯服务器上传 device token。 
 
-即时通讯 IM Web SDK 本身不支持离线推送，但支持移动平台的离线推送配置。
+```javascript
+const params = {
+        deviceId: WebIM.conn.clientResource, // 设备 ID，用于标识设备。
+        deviceToken: 'deviceToken', // 推送 token，用于标识每台设备上的每个应用。
+        notifierName: 'PUSH_CERT_NAME', // 推送服务的证书名称。
+};
+
+WebIM.conn.uploadPushToken(params);
+```
 
 ## 技术原理
 
