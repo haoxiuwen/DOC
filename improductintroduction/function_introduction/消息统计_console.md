@@ -109,9 +109,7 @@ message_statistics_group_downlink.png
 
 message_statistics_group_offline.png
 
-2. 对于聊天室，
-
-聊天室消息分发总数，即聊天室下行消息数。
+2. 对于聊天室，聊天室消息分发总数，即聊天室下行消息数。
 
 message_statistics_room_overview.png
 
