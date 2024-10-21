@@ -37,8 +37,8 @@ try {
 
 若要在通知栏中显示消息内容，需要设置通知显示样式 `DisplayStyle`。该参数有如下两种设置：
 
-- （默认）`SimpleBanner`：不论 `nickname` 是否设置，对于推送任何类型的消息，通知栏采用默认显示设置，即推送标题为“您有一条新消息”，推送内容为“请点击查看”。
-- `MessageSummary`：显示消息内容。设置的昵称只在 `DisplayStyle` 为 `MessageSummary` 时生效，在 `SimpleBanner` 时不生效。
+- （默认）`Simple`：不论 `nickname` 是否设置，对于推送任何类型的消息，通知栏采用默认显示设置，即推送标题为“您有一条新消息”，推送内容为“请点击查看”。
+- `Summary`：显示消息内容。设置的昵称只在 `DisplayStyle` 为 `Summary` 时生效，在 `Simple` 时不生效。
 
 下表以单聊文本消息为例介绍这显示属性的设置。
 

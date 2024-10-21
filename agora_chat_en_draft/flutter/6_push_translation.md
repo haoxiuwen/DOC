@@ -10,11 +10,10 @@
 // 设置离线推送的首选语言。
 try {
   await ChatClient.getInstance.pushManager.setPreferredNotificationLanguage('en');
-} on ChatClient catch (e) {}
-}
+} on ChatError catch (e) {}
 
 // 获取设置的离线推送的首选语言。
 try {
   String? language = await ChatClient.getInstance.pushManager.fetchPreferredNotificationLanguage();
-} on ChatClient catch (e) {}
+} on ChatError catch (e) {}
 ```
